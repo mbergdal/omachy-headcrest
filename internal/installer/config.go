@@ -162,20 +162,36 @@ func runConfigs(p *tea.Program, opts Options) error {
 	}
 
 	// Install Kickstart.nvim if no nvim config exists
+	// nvimDir := filepath.Join(home, ".config", "nvim")
+	// if _, err := os.Stat(nvimDir); os.IsNotExist(err) {
+	// 	if opts.DryRun {
+	// 		log("==> Would install Kickstart.nvim")
+	// 	} else {
+	// 		log("==> Installing Kickstart.nvim")
+	// 		if err := shell.RunStreaming("git", []string{
+	// 			"clone", "https://github.com/nvim-lua/kickstart.nvim", nvimDir,
+	// 		}, log); err != nil {
+	// 			log(fmt.Sprintf("    Warning: failed to clone Kickstart.nvim: %v", err))
+	// 		}
+	// 	}
+	// } else {
+	// 	log("    Neovim config already exists, skipping Kickstart.nvim")
+	// }
+
 	nvimDir := filepath.Join(home, ".config", "nvim")
 	if _, err := os.Stat(nvimDir); os.IsNotExist(err) {
 		if opts.DryRun {
-			log("==> Would install Kickstart.nvim")
+			log("==> Would install LazyVim.nvim")
 		} else {
-			log("==> Installing Kickstart.nvim")
+			log("==> Installing LazyVim.nvim")
 			if err := shell.RunStreaming("git", []string{
-				"clone", "https://github.com/nvim-lua/kickstart.nvim", nvimDir,
+				"clone", "https://github.com/LazyVim/starter", nvimDir,
 			}, log); err != nil {
-				log(fmt.Sprintf("    Warning: failed to clone Kickstart.nvim: %v", err))
+				log(fmt.Sprintf("    Warning: failed to clone LazyVim.nvim: %v", err))
 			}
 		}
 	} else {
-		log("    Neovim config already exists, skipping Kickstart.nvim")
+		log("    Neovim config already exists, skipping LazyVim.nvim")
 	}
 
 	// Install TPM and plugins if not already present

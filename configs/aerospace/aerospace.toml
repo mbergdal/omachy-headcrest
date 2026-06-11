@@ -2,7 +2,7 @@ config-version = 2
 
 # ── Startup ──────────────────────────────────────────────────────────────────
 after-startup-command = [
-    'exec-and-forget sketchybar',
+    # 'exec-and-forget sketchybar',
     'exec-and-forget borders active_color="glow(0xff00ffaa)" inactive_color=0xff313244 width=6.0',
 ]
 
@@ -49,67 +49,144 @@ exec-on-workspace-change = ['/bin/bash', '-c',
     if.app-id = 'com.apple.calculator'
     run = 'layout floating'
 
+    [[on-window-detected]]
+        if.app-id = 'dev.zed.Zed'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 1']
+
+    [[on-window-detected]]
+        if.app-id = 'com.mitchellh.ghostty'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 2']
+
+    [[on-window-detected]]
+        if.app-id = 'app.zen-browser.zen'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 3']
+
+    [[on-window-detected]]
+        if.app-id = 'com.superhuman.electron'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 4']
+
+    [[on-window-detected]]
+        if.app-id = 'com.flexibits.fantastical2.mac'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 4']
+
+    [[on-window-detected]]
+        if.app-id = 'com.microsoft.teams2'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 5']
+
+    [[on-window-detected]]
+        if.app-id = 'com.google.Chrome.app.mdpkiolbdkhdjpekfbkbmhigcaggjagi'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 5']
+
+    [[on-window-detected]]
+        if.app-id = 'com.openai.chat'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 6']
+
+    [[on-window-detected]]
+        if.app-id = 'com.anthropic.claudefordesktop'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['move-node-to-workspace 6']
+
+    [[on-window-detected]]
+        if.app-id = 'com.apple.finder'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['layout floating']
+
+    [[on-window-detected]]
+        if.app-id = 'com.apple.MobileSMS'
+        # if.app-name-regex-substring = 'settings'
+        # if.window-title-regex-substring = 'substring'
+        check-further-callbacks = true
+        run = ['layout floating']
+
 # ── Main keybindings ──────────────────────────────────────────────────────────
 [mode.main.binding]
     # Focus (vim-style)
-    alt-h = 'focus left'
-    alt-j = 'focus down'
-    alt-k = 'focus up'
-    alt-l = 'focus right'
+    cmd-h = 'focus left'
+    cmd-j = 'focus down'
+    cmd-k = 'focus up'
+    cmd-l = 'focus right'
 
     # Move windows (vim-style)
-    alt-shift-h = 'move left'
-    alt-shift-j = 'move down'
-    alt-shift-k = 'move up'
-    alt-shift-l = 'move right'
+    cmd-shift-h = 'move left'
+    cmd-shift-j = 'move down'
+    cmd-shift-k = 'move up'
+    cmd-shift-l = 'move right'
 
     # Resize
-    alt-minus = 'resize smart -50'
-    alt-equal = 'resize smart +50'
+    cmd-minus = 'resize smart -50'
+    cmd-equal = 'resize smart +50'
 
     # Layout toggles
-    alt-slash       = 'layout tiles horizontal vertical'
-    alt-comma       = 'layout accordion horizontal vertical'
-    alt-shift-space = 'layout floating tiling'
-    alt-f           = 'macos-native-fullscreen'
+    cmd-slash       = 'layout tiles horizontal vertical'
+    cmd-comma       = 'layout accordion horizontal vertical'
+    cmd-shift-space = 'layout floating tiling'
+    cmd-f           = 'macos-native-fullscreen'
 
     # Workspace switching (number-based)
-    alt-1 = 'workspace 1'
-    alt-2 = 'workspace 2'
-    alt-3 = 'workspace 3'
-    alt-4 = 'workspace 4'
-    alt-5 = 'workspace 5'
-    alt-6 = 'workspace 6'
-    alt-7 = 'workspace 7'
-    alt-8 = 'workspace 8'
-    alt-9 = 'workspace 9'
+    cmd-1 = 'workspace 1'
+    cmd-2 = 'workspace 2'
+    cmd-3 = 'workspace 3'
+    cmd-4 = 'workspace 4'
+    cmd-5 = 'workspace 5'
+    cmd-6 = 'workspace 6'
+    cmd-7 = 'workspace 7'
+    cmd-8 = 'workspace 8'
+    cmd-9 = 'workspace 9'
 
     # Move window to workspace
-    alt-shift-1 = 'move-node-to-workspace 1'
-    alt-shift-2 = 'move-node-to-workspace 2'
-    alt-shift-3 = 'move-node-to-workspace 3'
-    alt-shift-4 = 'move-node-to-workspace 4'
-    alt-shift-5 = 'move-node-to-workspace 5'
-    alt-shift-6 = 'move-node-to-workspace 6'
-    alt-shift-7 = 'move-node-to-workspace 7'
-    alt-shift-8 = 'move-node-to-workspace 8'
-    alt-shift-9 = 'move-node-to-workspace 9'
+    cmd-shift-1 = 'move-node-to-workspace 1'
+    cmd-shift-2 = 'move-node-to-workspace 2'
+    cmd-shift-3 = 'move-node-to-workspace 3'
+    cmd-shift-4 = 'move-node-to-workspace 4'
+    cmd-shift-5 = 'move-node-to-workspace 5'
+    cmd-shift-6 = 'move-node-to-workspace 6'
+    cmd-shift-7 = 'move-node-to-workspace 7'
+    cmd-shift-8 = 'move-node-to-workspace 8'
+    cmd-shift-9 = 'move-node-to-workspace 9'
 
     # Workspace navigation
-    alt-tab       = 'workspace-back-and-forth'
-    alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+    cmd-tab       = 'workspace-back-and-forth'
+    cmd-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 
     # Window management
-    alt-q     = 'close'
-    alt-enter = 'exec-and-forget osascript -e "tell application \"Ghostty\" to new window"'
+    cmd-q     = 'close'
+    cmd-enter = 'exec-and-forget osascript -e "tell application \"Ghostty\" to new window"'
 
     # Mode switching
-    alt-shift-semicolon = 'mode service'
-    alt-r               = 'mode resize'
+    cmd-shift-semicolon = 'mode service'
+    cmd-r               = 'mode resize'
 
     # Disable accidental macOS app hide shortcuts
     cmd-h     = []
-    cmd-alt-h = []
+    cmd-cmd-h = []
 
 # ── Service mode ──────────────────────────────────────────────────────────────
 [mode.service.binding]
@@ -119,10 +196,10 @@ exec-on-workspace-change = ['/bin/bash', '-c',
     backspace = ['close-all-windows-but-current', 'mode main']
 
     # Join windows into a container
-    alt-shift-h = ['join-with left',  'mode main']
-    alt-shift-j = ['join-with down',  'mode main']
-    alt-shift-k = ['join-with up',    'mode main']
-    alt-shift-l = ['join-with right', 'mode main']
+    cmd-shift-h = ['join-with left',  'mode main']
+    cmd-shift-j = ['join-with down',  'mode main']
+    cmd-shift-k = ['join-with up',    'mode main']
+    cmd-shift-l = ['join-with right', 'mode main']
 
 # ── Resize mode ───────────────────────────────────────────────────────────────
 [mode.resize.binding]

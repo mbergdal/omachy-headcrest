@@ -35,7 +35,7 @@ func Taps() []string {
 func Packages() []Package {
 	return []Package{
 		{Name: "nikitabobko/tap/aerospace", Tap: "nikitabobko/tap", Cask: true},
-		{Name: "sketchybar", Tap: "FelixKratz/formulae"},
+		// {Name: "sketchybar", Tap: "FelixKratz/formulae"},
 		{Name: "borders", Tap: "FelixKratz/formulae"},
 		{Name: "ghostty", Cask: true},
 		{Name: "neovim"},
@@ -46,6 +46,7 @@ func Packages() []Package {
 		{Name: "starship"},
 		{Name: "fzf"},
 		{Name: "lazygit"},
+		{Name: "opencode"},
 		{Name: "gh"},
 		{Name: "opencode"},
 		{Name: "lazydocker"},
@@ -53,9 +54,7 @@ func Packages() []Package {
 		{Name: "zsh-syntax-highlighting"},
 		{Name: "zsh-autosuggestions"},
 		{Name: "fastfetch"},
-		{Name: "node", SkipIfBinary: "node"},
-		{Name: "python", SkipIfBinary: "python3"},
-		{Name: "go", SkipIfBinary: "go"},
+		Package{Name: "mise"},
 	}
 }
 
@@ -74,7 +73,7 @@ func Services() []Package {
 func Configs() []ConfigMapping {
 	return []ConfigMapping{
 		{Source: "aerospace/aerospace.toml", Dest: "~/.config/aerospace/aerospace.toml", Mode: 0644},
-		{Source: "sketchybar", Dest: "~/.config/sketchybar", IsDir: true, Mode: 0755},
+		// {Source: "sketchybar", Dest: "~/.config/sketchybar", IsDir: true, Mode: 0755},
 		{Source: "borders/bordersrc", Dest: "~/.config/borders/bordersrc", Mode: 0755},
 		{Source: "ghostty/config", Dest: "~/Library/Application Support/com.mitchellh.ghostty/config", Mode: 0644},
 		{Source: "tmux/tmux.conf", Dest: "~/.tmux.conf", Mode: 0644, NeverOverwrite: true},

@@ -54,6 +54,7 @@ func Packages() []Package {
 		{Name: "opencode"},
 		{Name: "gh"},
 		{Name: "eza"},
+		{Name: "bat"},
 		{Name: "yazi"},
 		{Name: "lazydocker"},
 		{Name: "atuin"},

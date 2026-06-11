@@ -6,6 +6,8 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/dough654/Omachy/internal/brew"
+	"github.com/dough654/Omachy/internal/manifest"
 	"github.com/dough654/Omachy/internal/shell"
 	"github.com/dough654/Omachy/internal/tui"
 )
@@ -86,6 +88,10 @@ func runSystem(p *tea.Program, opts Options) error {
 
 	p.Send(tui.ProgressUpdate{Percent: 90})
 
+	if err := startBrewServices(opts.DryRun, state, log); err != nil {
+		return err
+	}
+
 	// Record which managed processes are already running before we start them,
 	// so uninstall only kills processes that Omachy started.
 	if !opts.DryRun {
@@ -137,6 +143,21 @@ func runSystem(p *tea.Program, opts Options) error {
 		}
 	}
 
+	return nil
+}
+
+func startBrewServices(dryRun bool, state *State, log func(string)) error {
+	for _, svc := range manifest.Services() {
+		if dryRun {
+			log(fmt.Sprintf("==> Would start service: %s", svc.Name))
+			continue
+		}
+
+		if err := brew.StartService(svc.Name, log); err != nil {
+			return fmt.Errorf("start service %s: %w", svc.Name, err)
+		}
+		state.Services = appendUnique(state.Services, svc.Name)
+	}
 	return nil
 }
 

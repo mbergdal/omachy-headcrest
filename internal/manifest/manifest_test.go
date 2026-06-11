@@ -4,8 +4,8 @@ import "testing"
 
 func TestPackages(t *testing.T) {
 	pkgs := Packages()
-	if len(pkgs) != 23 {
-		t.Fatalf("expected 23 packages, got %d", len(pkgs))
+	if len(pkgs) != 27 {
+		t.Fatalf("expected 27 packages, got %d", len(pkgs))
 	}
 	seen := map[string]bool{}
 	for i, pkg := range pkgs {
@@ -17,7 +17,7 @@ func TestPackages(t *testing.T) {
 	if !seen["mise"] {
 		t.Error("expected mise package")
 	}
-	for _, added := range []string{"zed", "zen", "raycast", "yazi"} {
+	for _, added := range []string{"zed", "zen", "raycast", "1password", "docker", "docker-compose", "colima", "eza", "yazi"} {
 		if !seen[added] {
 			t.Errorf("expected %s package", added)
 		}
@@ -64,10 +64,12 @@ func TestTaps(t *testing.T) {
 }
 
 func TestServices(t *testing.T) {
-	// Services() should return empty since no packages have Service: true.
 	svcs := Services()
-	if len(svcs) != 0 {
-		t.Errorf("expected no brew services (managed by AeroSpace), got %d", len(svcs))
+	if len(svcs) != 1 {
+		t.Fatalf("expected one brew service, got %d", len(svcs))
+	}
+	if svcs[0].Name != "colima" {
+		t.Errorf("expected colima service, got %s", svcs[0].Name)
 	}
 }
 

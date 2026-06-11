@@ -20,8 +20,13 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 | [Zed](https://zed.dev/) | Cask | Graphical code editor |
 | [Zen Browser](https://zen-browser.app/) | Cask | Web browser |
 | [Raycast](https://www.raycast.com/) | Cask | Launcher and automation |
+| [1Password](https://1password.com/) | Cask | Password manager |
 | [Starship](https://starship.rs/) | Formula | Cross-shell prompt |
 | [fzf](https://github.com/junegunn/fzf) | Formula | Fuzzy finder |
+| [Docker](https://www.docker.com/) | Formula | Docker CLI |
+| [Docker Compose](https://docs.docker.com/compose/) | Formula | Compose plugin/CLI |
+| [Colima](https://github.com/abiosoft/colima) | Formula | Docker runtime on macOS; installed as a brew service |
+| [eza](https://github.com/eza-community/eza) | Formula | Modern `ls` replacement |
 | [Lazygit](https://github.com/jesseduffield/lazygit) | Formula | Git TUI |
 | [GitHub CLI](https://cli.github.com/) | Formula | `gh` command-line client |
 | [opencode](https://github.com/sst/opencode) | Formula | AI coding agent CLI |
@@ -125,7 +130,7 @@ Runs the full installation through an interactive TUI with six phases:
 3. **Packages** — taps Homebrew repos and installs all packages
 4. **Runtimes** — installs latest Node.js, Python, Bun, pnpm, Erlang, and Elixir through `mise`
 5. **Configs** — deploys embedded config files to their destinations
-6. **System** — applies macOS defaults and prompts for AeroSpace accessibility permissions
+6. **System** — applies macOS defaults, starts brew services such as Colima, and prompts for AeroSpace accessibility permissions
 
 **Flags:**
 

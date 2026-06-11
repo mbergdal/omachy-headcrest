@@ -28,5 +28,5 @@
 
 - Homebrew cask installs intentionally pass `--adopt` so pre-existing `.app` bundles can be claimed instead of aborting; keep the brew tests covering this behavior.
 - Mise runtime setup lives in `internal/installer/runtimes.go`; npm is updated through `mise exec` after Node, not tracked as a separate mise runtime.
-- `manifest.Services()` is expected to be empty; services/processes are not managed as brew services in current tests.
+- `manifest.Services()` currently starts the Colima brew service during the System phase; do not add `colima start` unless the user explicitly wants the VM started during install.
 - Release builds are darwin-only via GoReleaser; `main.version` is set with `-X main.version={{.Version}}`.

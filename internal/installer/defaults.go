@@ -2,6 +2,8 @@ package installer
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -37,6 +39,24 @@ var MacOSDefaults = []MacOSDefault{
 	{"-g", "ApplePressAndHoldEnabled", "-bool", "false", "Disable press-and-hold for key repeat"},
 	// {"NSGlobalDomain", "_HIHideMenuBar", "-bool", "true", "Auto-hide menu bar"},
 	{"com.apple.WindowManager", "StandardHideWidgets", "-bool", "true", "Hide desktop widgets"},
+	{"com.apple.WindowManager", "EnableStandardClickToShowDesktop", "-bool", "false", "Disable click wallpaper to show desktop"},
+}
+
+const (
+	symbolicHotkeysDomain      = "com.apple.symbolichotkeys"
+	symbolicHotkeysKey         = "AppleSymbolicHotKeys"
+	symbolicHotkeyAbsentMarker = "__omachy_absent__"
+)
+
+type symbolicHotkeyDefault struct {
+	ID         string
+	Label      string
+	Parameters string
+}
+
+var spotlightHotkeys = []symbolicHotkeyDefault{
+	{ID: "64", Label: "Spotlight search (Cmd-Space)", Parameters: "32, 49, 1048576"},
+	{ID: "65", Label: "Finder search window (Cmd-Option-Space)", Parameters: "32, 49, 1572864"},
 }
 
 func runSystem(p *tea.Program, opts Options) error {
@@ -76,6 +96,10 @@ func runSystem(p *tea.Program, opts Options) error {
 			return fmt.Errorf("defaults write %s %s: %w", d.Domain, d.Key, err)
 		}
 		log(fmt.Sprintf("    %s", d.Label))
+	}
+
+	if err := disableSpotlightShortcuts(opts.DryRun, state, log); err != nil {
+		return err
 	}
 
 	// Restart Dock and SystemUIServer to apply changes
@@ -136,6 +160,10 @@ func runSystem(p *tea.Program, opts Options) error {
 		log("==> Would start AeroSpace and check Accessibility permissions")
 	}
 
+	if err := openRaycastImport(opts.DryRun, homeConfigPath("~/.config/omachy/raycast.rayconfig"), log); err != nil {
+		return err
+	}
+
 	// Save state
 	if !opts.DryRun {
 		if err := SaveState(state); err != nil {
@@ -144,6 +172,33 @@ func runSystem(p *tea.Program, opts Options) error {
 	}
 
 	return nil
+}
+
+func openRaycastImport(dryRun bool, configPath string, log func(string)) error {
+	url := "raycast://extensions/raycast/raycast/import-settings-data"
+	if dryRun {
+		log("==> Would open Raycast settings import")
+		log(fmt.Sprintf("    Select config file: %s", configPath))
+		return nil
+	}
+
+	log("==> Opening Raycast settings import")
+	log(fmt.Sprintf("    Select config file: %s", configPath))
+	if _, err := shell.Run("open", url); err != nil {
+		return fmt.Errorf("open Raycast import: %w", err)
+	}
+	return nil
+}
+
+func homeConfigPath(path string) string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return path
+	}
+	if strings.HasPrefix(path, "~/") {
+		return filepath.Join(home, path[2:])
+	}
+	return path
 }
 
 func startBrewServices(dryRun bool, state *State, log func(string)) error {
@@ -159,6 +214,133 @@ func startBrewServices(dryRun bool, state *State, log func(string)) error {
 		state.Services = appendUnique(state.Services, svc.Name)
 	}
 	return nil
+}
+
+func disableSpotlightShortcuts(dryRun bool, state *State, log func(string)) error {
+	log("==> Disabling Spotlight keyboard shortcuts")
+	for _, hk := range spotlightHotkeys {
+		if dryRun {
+			log(fmt.Sprintf("    Would disable: %s", hk.Label))
+			continue
+		}
+
+		stateKey := symbolicHotkeyStateKey(hk.ID)
+		if _, exists := state.OriginalDefaults[stateKey]; !exists {
+			enabled, found, err := readSymbolicHotkeyEnabled(hk.ID)
+			if err != nil {
+				return fmt.Errorf("read %s shortcut state: %w", hk.Label, err)
+			}
+			if found {
+				state.OriginalDefaults[stateKey] = fmt.Sprintf("-bool:%t", enabled)
+			} else {
+				state.OriginalDefaults[stateKey] = symbolicHotkeyAbsentMarker
+			}
+		}
+
+		if err := writeSymbolicHotkeyEnabled(hk, false); err != nil {
+			return fmt.Errorf("disable %s: %w", hk.Label, err)
+		}
+		log(fmt.Sprintf("    Disabled %s", hk.Label))
+	}
+	return nil
+}
+
+func symbolicHotkeyStateKey(id string) string {
+	return fmt.Sprintf("%s:%s.%s.enabled", symbolicHotkeysDomain, symbolicHotkeysKey, id)
+}
+
+func readSymbolicHotkeyEnabled(id string) (enabled bool, found bool, err error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false, false, err
+	}
+	path := filepath.Join(home, "Library", "Preferences", symbolicHotkeysDomain+".plist")
+	result, err := shell.Run("/usr/libexec/PlistBuddy", "-c", fmt.Sprintf("Print :%s:%s:enabled", symbolicHotkeysKey, id), path)
+	if err != nil {
+		if strings.Contains(result.Stderr, "Does Not Exist") || strings.Contains(result.Stderr, "File Doesn't Exist") {
+			return false, false, nil
+		}
+		return false, false, err
+	}
+
+	switch strings.TrimSpace(result.Stdout) {
+	case "true", "1":
+		return true, true, nil
+	case "false", "0":
+		return false, true, nil
+	default:
+		return false, true, fmt.Errorf("unexpected enabled value %q", strings.TrimSpace(result.Stdout))
+	}
+}
+
+func writeSymbolicHotkeyEnabled(hk symbolicHotkeyDefault, enabled bool) error {
+	enabledValue := 0
+	if enabled {
+		enabledValue = 1
+	}
+	definition := fmt.Sprintf("{ enabled = %d; value = { parameters = (%s); type = standard; }; }", enabledValue, hk.Parameters)
+	_, err := shell.Run("defaults", "write", symbolicHotkeysDomain, symbolicHotkeysKey, "-dict-add", hk.ID, definition)
+	return err
+}
+
+func deleteSymbolicHotkey(id string) error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	path := filepath.Join(home, "Library", "Preferences", symbolicHotkeysDomain+".plist")
+	result, err := shell.Run("/usr/libexec/PlistBuddy", "-c", fmt.Sprintf("Delete :%s:%s", symbolicHotkeysKey, id), path)
+	if err != nil && !strings.Contains(result.Stderr, "Does Not Exist") {
+		return err
+	}
+	return nil
+}
+
+// RestoreSpecialDefault restores defaults that need custom write logic.
+func RestoreSpecialDefault(domain, key, stored string, dryRun bool, log func(string)) (bool, error) {
+	if domain != symbolicHotkeysDomain || !strings.HasPrefix(key, symbolicHotkeysKey+".") || !strings.HasSuffix(key, ".enabled") {
+		return false, nil
+	}
+
+	id := strings.TrimSuffix(strings.TrimPrefix(key, symbolicHotkeysKey+"."), ".enabled")
+	if stored == symbolicHotkeyAbsentMarker {
+		if dryRun {
+			log(fmt.Sprintf("    Would delete %s %s override", symbolicHotkeysKey, id))
+			return true, nil
+		}
+		if err := deleteSymbolicHotkey(id); err != nil {
+			return true, err
+		}
+		log(fmt.Sprintf("    Deleted %s %s override", symbolicHotkeysKey, id))
+		return true, nil
+	}
+
+	if !strings.HasPrefix(stored, "-bool:") {
+		return true, fmt.Errorf("unexpected stored value %q", stored)
+	}
+	enabled := strings.TrimPrefix(stored, "-bool:") == "true"
+	hk, ok := symbolicHotkeyByID(id)
+	if !ok {
+		return true, fmt.Errorf("unknown symbolic hotkey id %s", id)
+	}
+	if dryRun {
+		log(fmt.Sprintf("    Would restore %s to enabled=%t", hk.Label, enabled))
+		return true, nil
+	}
+	if err := writeSymbolicHotkeyEnabled(hk, enabled); err != nil {
+		return true, err
+	}
+	log(fmt.Sprintf("    Restored %s", hk.Label))
+	return true, nil
+}
+
+func symbolicHotkeyByID(id string) (symbolicHotkeyDefault, bool) {
+	for _, hk := range spotlightHotkeys {
+		if hk.ID == id {
+			return hk, true
+		}
+	}
+	return symbolicHotkeyDefault{}, false
 }
 
 func readDefault(domain, key string) (string, error) {

@@ -302,13 +302,20 @@ func restoreDefaults(p *tea.Program, opts Options) error {
 
 		// Stored format is "type:value" (e.g. "-bool:1") or legacy plain value
 		typ, value := parseStoredDefault(stored)
+		handled, err := installer.RestoreSpecialDefault(domain, defKey, stored, opts.DryRun, log)
+		if handled {
+			if err != nil {
+				log(fmt.Sprintf("    Warning: could not restore %s: %v", defKey, err))
+			}
+			continue
+		}
 
 		if opts.DryRun {
 			log(fmt.Sprintf("    Would restore %s %s → %s %s", domain, defKey, typ, value))
 			continue
 		}
 
-		_, err := shell.Run("defaults", "write", domain, defKey, typ, value)
+		_, err = shell.Run("defaults", "write", domain, defKey, typ, value)
 		if err != nil {
 			log(fmt.Sprintf("    Warning: could not restore %s: %v", defKey, err))
 		} else {

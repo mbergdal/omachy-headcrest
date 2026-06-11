@@ -4,8 +4,8 @@ import "testing"
 
 func TestPackages(t *testing.T) {
 	pkgs := Packages()
-	if len(pkgs) != 28 {
-		t.Fatalf("expected 28 packages, got %d", len(pkgs))
+	if len(pkgs) != 29 {
+		t.Fatalf("expected 29 packages, got %d", len(pkgs))
 	}
 	seen := map[string]bool{}
 	for i, pkg := range pkgs {
@@ -17,7 +17,7 @@ func TestPackages(t *testing.T) {
 	if !seen["mise"] {
 		t.Error("expected mise package")
 	}
-	for _, added := range []string{"zed", "zen", "raycast", "1password", "docker", "docker-compose", "colima", "eza", "bat", "yazi"} {
+	for _, added := range []string{"zed", "zen", "raycast", "1password", "superhuman", "docker", "docker-compose", "colima", "eza", "bat", "yazi"} {
 		if !seen[added] {
 			t.Errorf("expected %s package", added)
 		}
@@ -78,6 +78,7 @@ func TestConfigs(t *testing.T) {
 	if len(configs) == 0 {
 		t.Fatal("expected at least one config")
 	}
+	seen := map[string]ConfigMapping{}
 	for i, cfg := range configs {
 		if cfg.Source == "" {
 			t.Errorf("config %d has empty Source", i)
@@ -88,5 +89,13 @@ func TestConfigs(t *testing.T) {
 		if cfg.Mode == 0 {
 			t.Errorf("config %d (%s) has zero Mode", i, cfg.Source)
 		}
+		seen[cfg.Source] = cfg
+	}
+	raycast, ok := seen["Raycast 2026-06-11 15.59.34.rayconfig"]
+	if !ok {
+		t.Fatal("expected Raycast config mapping")
+	}
+	if raycast.Dest != "~/.config/omachy/raycast.rayconfig" {
+		t.Fatalf("Raycast config dest = %q", raycast.Dest)
 	}
 }

@@ -21,6 +21,7 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 | [Zen Browser](https://zen-browser.app/) | Cask | Web browser |
 | [Raycast](https://www.raycast.com/) | Cask | Launcher and automation |
 | [1Password](https://1password.com/) | Cask | Password manager |
+| [Superhuman](https://superhuman.com/) | Cask | Email client |
 | [Starship](https://starship.rs/) | Formula | Cross-shell prompt |
 | [fzf](https://github.com/junegunn/fzf) | Formula | Fuzzy finder |
 | [Docker](https://www.docker.com/) | Formula | Docker CLI |
@@ -66,6 +67,7 @@ After Node is installed, npm is updated with `mise exec -- npm install -g npm@la
 | `starship.toml` | `~/.config/starship.toml` |
 | `zed/keymap.json` | `~/.config/zed/keymap.json` |
 | `zed/settings.json` | `~/.config/zed/settings.json` |
+| `Raycast 2026-06-11 15.59.34.rayconfig` | `~/.config/omachy/raycast.rayconfig` |
 | `omachy/dev-session.sh` | `~/.config/omachy/dev-session.sh` |
 | `yazi/keymap.toml` | `~/.config/yazi/keymap.toml` |
 | `yazi/theme.toml` | `~/.config/yazi/theme.toml` |
@@ -86,6 +88,7 @@ Additionally, the installer:
 - Clones [LazyVim starter](https://github.com/LazyVim/starter) to `~/.config/nvim/` if no Neovim config exists
 - Clones [TPM](https://github.com/tmux-plugins/tpm) to `~/.tmux/plugins/tpm` if not already installed
 - Deploys Zed settings/keymaps, Yazi configuration, and shell aliases
+- Opens Raycast's import UI at the end of install; select `~/.config/omachy/raycast.rayconfig`
 
 **macOS system defaults** are adjusted:
 
@@ -96,6 +99,8 @@ Additionally, the installer:
 - Fastest key repeat rate with shortest initial delay
 - Disable press-and-hold for key repeat
 - Hide desktop widgets
+- Disable click wallpaper to show desktop
+- Disable Spotlight keyboard shortcuts so Raycast can use Cmd-Space
 - Show all file extensions
 - Scale minimize effect
 

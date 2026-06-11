@@ -85,6 +85,7 @@ func renderInstallSplash(b *strings.Builder, opts SplashOptions, bullet string) 
 		{"Zen Browser", "web browser"},
 		{"Raycast", "launcher and automation"},
 		{"1Password", "password manager"},
+		{"Superhuman", "email client"},
 		{"Tmux + TPM", "terminal multiplexer"},
 		{"Yazi", "terminal file manager"},
 		{"mise", "runtime manager"},

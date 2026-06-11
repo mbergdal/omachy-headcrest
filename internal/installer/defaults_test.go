@@ -44,6 +44,20 @@ func TestStartBrewServicesDryRun(t *testing.T) {
 	}
 }
 
+func TestOpenRaycastImportDryRun(t *testing.T) {
+	var lines []string
+	if err := openRaycastImport(true, "/tmp/raycast.rayconfig", func(line string) { lines = append(lines, line) }); err != nil {
+		t.Fatal(err)
+	}
+	output := strings.Join(lines, "\n")
+	if !strings.Contains(output, "Would open Raycast settings import") {
+		t.Fatalf("missing dry-run import log: %v", lines)
+	}
+	if !strings.Contains(output, "/tmp/raycast.rayconfig") {
+		t.Fatalf("missing config path log: %v", lines)
+	}
+}
+
 func writeFakeServiceBrew(t *testing.T, tmp, logPath string) {
 	t.Helper()
 

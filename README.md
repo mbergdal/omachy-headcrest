@@ -113,6 +113,22 @@ brew install omachy
 omachy install
 ```
 
+### Running a downloaded release
+
+Manually downloaded GitHub release binaries may be blocked by macOS Gatekeeper because they are not Apple-notarized. For your own trusted release binary, remove the quarantine attribute before running:
+
+```bash
+xattr -dr com.apple.quarantine ./omachy
+chmod +x ./omachy
+./omachy install
+```
+
+If you extracted the release into a folder, remove quarantine from the whole folder:
+
+```bash
+xattr -dr com.apple.quarantine /path/to/omachy-folder
+```
+
 ### Building from source
 
 ```bash

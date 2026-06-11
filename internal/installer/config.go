@@ -138,16 +138,6 @@ func runConfigs(p *tea.Program, opts Options) error {
 		p.Send(tui.ProgressUpdate{Percent: pct})
 	}
 
-	// Overwrite sketchybarrc with named variant if requested
-	if opts.NamedWorkspaces && !opts.DryRun {
-		sketchybarDest := filepath.Join(home, ".config", "sketchybar", "sketchybarrc")
-		if err := deployFile("sketchybar/sketchybarrc-named", sketchybarDest, 0755); err != nil {
-			log(fmt.Sprintf("    Warning: failed to deploy named sketchybarrc: %v", err))
-		} else {
-			log("    Deployed named workspace sketchybarrc")
-		}
-	}
-
 	// Clean up legacy AeroSpace config location to avoid ambiguity
 	legacyAerospace := filepath.Join(home, ".aerospace.toml")
 	if _, err := os.Stat(legacyAerospace); err == nil {
@@ -160,23 +150,6 @@ func runConfigs(p *tea.Program, opts Options) error {
 			log("==> Would remove legacy ~/.aerospace.toml to avoid config ambiguity")
 		}
 	}
-
-	// Install Kickstart.nvim if no nvim config exists
-	// nvimDir := filepath.Join(home, ".config", "nvim")
-	// if _, err := os.Stat(nvimDir); os.IsNotExist(err) {
-	// 	if opts.DryRun {
-	// 		log("==> Would install Kickstart.nvim")
-	// 	} else {
-	// 		log("==> Installing Kickstart.nvim")
-	// 		if err := shell.RunStreaming("git", []string{
-	// 			"clone", "https://github.com/nvim-lua/kickstart.nvim", nvimDir,
-	// 		}, log); err != nil {
-	// 			log(fmt.Sprintf("    Warning: failed to clone Kickstart.nvim: %v", err))
-	// 		}
-	// 	}
-	// } else {
-	// 	log("    Neovim config already exists, skipping Kickstart.nvim")
-	// }
 
 	nvimDir := filepath.Join(home, ".config", "nvim")
 	if _, err := os.Stat(nvimDir); os.IsNotExist(err) {
@@ -245,6 +218,7 @@ var shellIntegrations = []struct {
 	check string // string to search for in existing .zshrc
 	line  string // line to add
 }{
+	{`mise activate zsh`, `eval "$(mise activate zsh)"`},
 	{`starship init zsh`, `eval "$(starship init zsh)"`},
 	{`fzf --zsh`, `eval "$(fzf --zsh)"`},
 	{`atuin init zsh`, `eval "$(atuin init zsh)"`},

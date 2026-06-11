@@ -79,11 +79,11 @@ func renderInstallSplash(b *strings.Builder, opts SplashOptions, bullet string) 
 	b.WriteString("\n")
 	tools := []struct{ name, desc string }{
 		{"AeroSpace", "tiling window manager"},
-		{"SketchyBar", "custom menu bar"},
-		{"JankyBorders", "window border highlights"},
 		{"Ghostty", "terminal emulator"},
-		{"Neovim + Kickstart", "text editor"},
+		{"Neovim + LazyVim", "text editor"},
 		{"Tmux + TPM", "terminal multiplexer"},
+		{"mise", "runtime manager"},
+		{"Node, Python, Bun, pnpm, Erlang, Elixir", "latest runtimes via mise"},
 		{"Starship", "cross-shell prompt"},
 		{"fzf", "fuzzy finder"},
 		{"Lazygit", "git TUI"},
@@ -92,7 +92,6 @@ func renderInstallSplash(b *strings.Builder, opts SplashOptions, bullet string) 
 		{"Lazydocker", "docker TUI"},
 		{"Atuin", "shell history search"},
 		{"Nerd Fonts", "Hack + JetBrains Mono"},
-		{"Node, Python, Go", "language runtimes"},
 	}
 	for _, t := range tools {
 		b.WriteString(fmt.Sprintf("    %s %s  %s\n",
@@ -132,8 +131,9 @@ func renderUninstallSplash(b *strings.Builder, opts SplashOptions, bullet string
 	b.WriteString(splashSection.Render("  This will remove Omachy and restore your system:"))
 	b.WriteString("\n\n")
 	steps := []string{
-		"Stop running brew services (SketchyBar, JankyBorders)",
+		"Stop processes Omachy started",
 		"Remove deployed config files",
+		"Remove mise runtimes that Omachy configured",
 		"Uninstall packages that Omachy installed",
 		"Restore original macOS system defaults",
 		"Restore config backups (if available)",

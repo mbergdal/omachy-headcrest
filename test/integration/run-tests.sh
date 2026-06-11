@@ -121,12 +121,6 @@ echo "── Pre-install state ──"
 pre_aerospace=$(ssh_cmd "pgrep -x AeroSpace >/dev/null 2>&1 && echo running || echo stopped")
 assert_eq "AeroSpace not running before install" "stopped" "$pre_aerospace"
 
-pre_sketchybar=$(ssh_cmd "pgrep -x sketchybar >/dev/null 2>&1 && echo running || echo stopped")
-assert_eq "sketchybar not running before install" "stopped" "$pre_sketchybar"
-
-pre_borders=$(ssh_cmd "pgrep -x borders >/dev/null 2>&1 && echo running || echo stopped")
-assert_eq "borders not running before install" "stopped" "$pre_borders"
-
 # ── Install ──────────────────────────────────────────────────────────────────
 
 echo ""
@@ -148,12 +142,6 @@ assert_eq "state.json exists after install" "yes" "$state_exists"
 aero_cfg=$(ssh_cmd "test -f ~/.config/aerospace/aerospace.toml && echo yes || echo no")
 assert_eq "aerospace.toml deployed" "yes" "$aero_cfg"
 
-sketchybar_cfg=$(ssh_cmd "test -d ~/.config/sketchybar && echo yes || echo no")
-assert_eq "sketchybar config deployed" "yes" "$sketchybar_cfg"
-
-borders_cfg=$(ssh_cmd "test -f ~/.config/borders/bordersrc && echo yes || echo no")
-assert_eq "bordersrc deployed" "yes" "$borders_cfg"
-
 starship_cfg=$(ssh_cmd "test -f ~/.config/starship.toml && echo yes || echo no")
 assert_eq "starship.toml deployed" "yes" "$starship_cfg"
 
@@ -163,6 +151,7 @@ assert_eq "dev-session.sh deployed" "yes" "$dev_session"
 # Check zshrc has managed block
 zshrc=$(ssh_cmd "cat ~/.zshrc 2>/dev/null || echo ''")
 assert_contains "zshrc has Omachy managed block" "Omachy managed" "$zshrc"
+assert_contains "zshrc has mise activation" "mise activate zsh" "$zshrc"
 assert_contains "zshrc has starship init" "starship init zsh" "$zshrc"
 assert_contains "zshrc has vim motions" "set -o vi" "$zshrc"
 assert_contains "zshrc has syntax highlighting" "zsh-syntax-highlighting" "$zshrc"
@@ -172,9 +161,6 @@ assert_contains "zshrc has dev function" "dev()" "$zshrc"
 # Check macOS defaults were applied
 dock_autohide=$(ssh_cmd "defaults read com.apple.dock autohide 2>/dev/null || echo unset")
 assert_eq "Dock autohide enabled" "1" "$dock_autohide"
-
-menu_hidden=$(ssh_cmd "defaults read NSGlobalDomain _HIHideMenuBar 2>/dev/null || echo unset")
-assert_eq "Menu bar auto-hidden" "1" "$menu_hidden"
 
 # ── Uninstall ────────────────────────────────────────────────────────────────
 
@@ -192,18 +178,9 @@ echo "── Post-uninstall state ──"
 post_aerospace=$(ssh_cmd "pgrep -x AeroSpace >/dev/null 2>&1 && echo running || echo stopped")
 assert_eq "AeroSpace stopped after uninstall" "stopped" "$post_aerospace"
 
-post_sketchybar=$(ssh_cmd "pgrep -x sketchybar >/dev/null 2>&1 && echo running || echo stopped")
-assert_eq "sketchybar stopped after uninstall" "stopped" "$post_sketchybar"
-
-post_borders=$(ssh_cmd "pgrep -x borders >/dev/null 2>&1 && echo running || echo stopped")
-assert_eq "borders stopped after uninstall" "stopped" "$post_borders"
-
 # Configs should be removed
 aero_cfg_gone=$(ssh_cmd "test -f ~/.config/aerospace/aerospace.toml && echo exists || echo gone")
 assert_eq "aerospace.toml removed" "gone" "$aero_cfg_gone"
-
-borders_cfg_gone=$(ssh_cmd "test -f ~/.config/borders/bordersrc && echo exists || echo gone")
-assert_eq "bordersrc removed" "gone" "$borders_cfg_gone"
 
 starship_cfg_gone=$(ssh_cmd "test -f ~/.config/starship.toml && echo exists || echo gone")
 assert_eq "starship.toml removed" "gone" "$starship_cfg_gone"

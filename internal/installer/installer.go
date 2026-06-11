@@ -22,6 +22,7 @@ func PhaseNames() []string {
 		"Preflight",
 		"Backup",
 		"Packages",
+		"Runtimes",
 		"Configs",
 		"System",
 	}
@@ -36,6 +37,7 @@ func Run(p *tea.Program, opts Options) {
 		{"Preflight", runPreflight},
 		{"Backup", runBackup},
 		{"Packages", runPackages},
+		{"Runtimes", runRuntimes},
 		{"Configs", runConfigs},
 		{"System", runSystem},
 	}

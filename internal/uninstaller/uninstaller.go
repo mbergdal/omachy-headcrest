@@ -18,6 +18,7 @@ func PhaseNames() []string {
 	return []string{
 		"Services",
 		"Configs",
+		"Runtimes",
 		"Packages",
 		"Defaults",
 	}
@@ -35,6 +36,7 @@ func Run(p *tea.Program, opts Options) {
 	// Check if Omachy is actually installed
 	state, err := installer.LoadState()
 	if err == nil && len(state.InstalledPackages) == 0 &&
+		len(state.InstalledRuntimes) == 0 &&
 		len(state.DeployedConfigs) == 0 &&
 		len(state.OriginalDefaults) == 0 &&
 		len(state.Services) == 0 &&
@@ -50,6 +52,7 @@ func Run(p *tea.Program, opts Options) {
 	}{
 		{"Services", stopServices},
 		{"Configs", removeConfigs},
+		{"Runtimes", removeRuntimes},
 		{"Packages", removePackages},
 		{"Defaults", restoreDefaults},
 	}
@@ -91,13 +94,12 @@ func stopServices(p *tea.Program, opts Options) error {
 	}
 
 	// Kill processes that Omachy started directly (not managed as brew services).
-	// AeroSpace launches sketchybar and borders via after-startup-command.
 	// Only kill processes that were not already running before install.
 	preExisting := make(map[string]bool, len(state.RunningProcesses))
 	for _, p := range state.RunningProcesses {
 		preExisting[p] = true
 	}
-	for _, proc := range []string{"AeroSpace", "sketchybar", "borders"} {
+	for _, proc := range []string{"AeroSpace"} {
 		if preExisting[proc] {
 			log(fmt.Sprintf("    Skipping %s (was running before install)", proc))
 			continue
@@ -109,6 +111,54 @@ func stopServices(p *tea.Program, opts Options) error {
 		log(fmt.Sprintf("==> Killing %s", proc))
 		if _, err := shell.Run("pkill", "-x", proc); err != nil {
 			log(fmt.Sprintf("    %s was not running", proc))
+		}
+	}
+
+	return nil
+}
+
+func removeRuntimes(p *tea.Program, opts Options) error {
+	log := func(text string) { p.Send(tui.LogLine{Text: text}) }
+
+	if opts.KeepPackages {
+		log("==> Keeping mise runtimes (--keep-packages)")
+		return nil
+	}
+
+	state, err := installer.LoadState()
+	if err != nil {
+		return err
+	}
+
+	if len(state.InstalledRuntimes) == 0 {
+		log("    No mise runtimes were installed by Omachy")
+		return nil
+	}
+
+	if !opts.DryRun {
+		if _, found := shell.Which("mise"); !found {
+			log("    mise not found; skipping runtime cleanup")
+			return nil
+		}
+	}
+
+	for i := len(state.InstalledRuntimes) - 1; i >= 0; i-- {
+		rt := state.InstalledRuntimes[i]
+		if opts.DryRun {
+			log(fmt.Sprintf("==> Would remove mise runtime %s (%s)", rt.Name, rt.Spec))
+			continue
+		}
+
+		log(fmt.Sprintf("==> Removing mise runtime %s (%s)", rt.Name, rt.Spec))
+		if err := shell.RunStreaming("mise", []string{"unuse", "--global", rt.Spec}, log); err != nil {
+			log(fmt.Sprintf("    Warning: could not remove %s: %v", rt.Spec, err))
+		}
+	}
+
+	if !opts.DryRun {
+		state.InstalledRuntimes = nil
+		if err := installer.SaveState(state); err != nil {
+			return fmt.Errorf("save state: %w", err)
 		}
 	}
 

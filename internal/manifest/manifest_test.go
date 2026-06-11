@@ -4,12 +4,22 @@ import "testing"
 
 func TestPackages(t *testing.T) {
 	pkgs := Packages()
-	if len(pkgs) != 22 {
-		t.Fatalf("expected 22 packages, got %d", len(pkgs))
+	if len(pkgs) != 21 {
+		t.Fatalf("expected 21 packages, got %d", len(pkgs))
 	}
+	seen := map[string]bool{}
 	for i, pkg := range pkgs {
 		if pkg.Name == "" {
 			t.Errorf("package %d has empty Name", i)
+		}
+		seen[pkg.Name] = true
+	}
+	if !seen["mise"] {
+		t.Error("expected mise package")
+	}
+	for _, removed := range []string{"sketchybar", "borders"} {
+		if seen[removed] {
+			t.Errorf("%s should not be installed", removed)
 		}
 	}
 }
@@ -49,7 +59,6 @@ func TestTaps(t *testing.T) {
 }
 
 func TestServices(t *testing.T) {
-	// Services are now managed by AeroSpace (after-startup-command), not brew services.
 	// Services() should return empty since no packages have Service: true.
 	svcs := Services()
 	if len(svcs) != 0 {

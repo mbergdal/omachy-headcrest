@@ -14,7 +14,7 @@ func TestRenderSplash(t *testing.T) {
 	}
 
 	// Should contain tool names
-	tools := []string{"AeroSpace", "SketchyBar", "Ghostty", "Neovim", "Tmux"}
+	tools := []string{"AeroSpace", "Ghostty", "Neovim", "Tmux", "mise", "Node", "Bun", "Elixir"}
 	for _, tool := range tools {
 		if !strings.Contains(view, tool) {
 			t.Errorf("splash should contain tool name %q", tool)

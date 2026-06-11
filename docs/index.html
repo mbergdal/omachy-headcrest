@@ -1,492 +1,788 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Omachy — Tiling Window Manager Setup for macOS</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="icon" href="/favicon.ico">
-  <link rel="manifest" href="/site.webmanifest">
-  <meta name="description" content="Omachy transforms your Mac into a keyboard-driven development environment. Tiling windows, Neovim, Tmux, and a custom menu bar — installed and configured from a single command.">
-  <link rel="canonical" href="https://omachy.org/">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Omachy — Tiling Window Manager Setup for macOS</title>
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta
+            name="description"
+            content="Omachy transforms your Mac into a keyboard-driven development environment. Tiling windows, Neovim, Tmux, and a custom menu bar — installed and configured from a single command."
+        />
+        <link rel="canonical" href="https://omachy.org/" />
 
-  <!-- Open Graph -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://omachy.org/">
-  <meta property="og:title" content="Omachy — Tiling Window Manager Setup for macOS">
-  <meta property="og:description" content="A complete tiling window manager setup for macOS — one command, zero config. Keyboard-driven windows, Neovim, Tmux, SketchyBar, and more.">
-  <meta property="og:image" content="https://omachy.org/screenshot.png">
+        <!-- Open Graph -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://omachy.org/" />
+        <meta
+            property="og:title"
+            content="Omachy — Tiling Window Manager Setup for macOS"
+        />
+        <meta
+            property="og:description"
+            content="A complete tiling window manager setup for macOS — one command, zero config. Keyboard-driven windows, Neovim, Tmux, mise runtimes, and more."
+        />
+        <meta property="og:image" content="https://omachy.org/screenshot.png" />
 
-  <!-- Twitter / X -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Omachy — Tiling Window Manager Setup for macOS">
-  <meta name="twitter:description" content="A complete tiling window manager setup for macOS — one command, zero config.">
-  <meta name="twitter:image" content="https://omachy.org/screenshot.png">
+        <!-- Twitter / X -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+            name="twitter:title"
+            content="Omachy — Tiling Window Manager Setup for macOS"
+        />
+        <meta
+            name="twitter:description"
+            content="A complete tiling window manager setup for macOS — one command, zero config."
+        />
+        <meta
+            name="twitter:image"
+            content="https://omachy.org/screenshot.png"
+        />
 
-  <!-- Structured data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Omachy",
-    "operatingSystem": "macOS",
-    "applicationCategory": "DeveloperApplication",
-    "description": "A complete tiling window manager setup for macOS — one command, zero config.",
-    "url": "https://omachy.org",
-    "downloadUrl": "https://omachy.org/#install",
-    "license": "https://opensource.org/licenses/MIT",
-    "codeRepository": "https://github.com/dough654/omachy",
-    "image": "https://omachy.org/screenshot.png"
-  }
-  </script>
-  <style>
-    :root {
-      --primary: #7C3AED;
-      --secondary: #A78BFA;
-      --bg: #1E1E2E;
-      --bg-surface: #262637;
-      --text: #CDD6F4;
-      --muted: #6C7086;
-    }
+        <!-- Structured data -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "Omachy",
+                "operatingSystem": "macOS",
+                "applicationCategory": "DeveloperApplication",
+                "description": "A complete tiling window manager setup for macOS — one command, zero config.",
+                "url": "https://omachy.org",
+                "downloadUrl": "https://omachy.org/#install",
+                "license": "https://opensource.org/licenses/MIT",
+                "codeRepository": "https://github.com/dough654/omachy",
+                "image": "https://omachy.org/screenshot.png"
+            }
+        </script>
+        <style>
+            :root {
+                --primary: #7c3aed;
+                --secondary: #a78bfa;
+                --bg: #1e1e2e;
+                --bg-surface: #262637;
+                --text: #cdd6f4;
+                --muted: #6c7086;
+            }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-    body {
-      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
+            body {
+                font-family:
+                    "SF Mono", "Fira Code", "Cascadia Code", "JetBrains Mono",
+                    monospace;
+                background: var(--bg);
+                color: var(--text);
+                line-height: 1.6;
+            }
 
-    a { color: var(--secondary); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+            a {
+                color: var(--secondary);
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
 
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 0 1.5rem;
+            }
 
-    /* Hero */
-    .hero {
-      text-align: center;
-      padding: 6rem 0 4rem;
-    }
+            /* Hero */
+            .hero {
+                text-align: center;
+                padding: 6rem 0 4rem;
+            }
 
-    .hero pre {
-      color: var(--primary);
-      font-size: 1.1rem;
-      line-height: 1.2;
-      margin-bottom: 1.5rem;
-      display: inline-block;
-      text-align: left;
-    }
+            .hero pre {
+                color: var(--primary);
+                font-size: 1.1rem;
+                line-height: 1.2;
+                margin-bottom: 1.5rem;
+                display: inline-block;
+                text-align: left;
+            }
 
-    .hero h1 {
-      font-size: 1.1rem;
-      font-weight: 400;
-      color: var(--secondary);
-      margin-bottom: 2rem;
-    }
+            .hero h1 {
+                font-size: 1.1rem;
+                font-weight: 400;
+                color: var(--secondary);
+                margin-bottom: 2rem;
+            }
 
-    .install-cmd {
-      background: var(--bg-surface);
-      border: 1px solid var(--primary);
-      border-radius: 8px;
-      padding: 1rem 1.5rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 0.85rem;
-      color: var(--text);
-      max-width: 100%;
-      overflow-x: auto;
-    }
+            .install-cmd {
+                background: var(--bg-surface);
+                border: 1px solid var(--primary);
+                border-radius: 8px;
+                padding: 1rem 1.5rem;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-size: 0.85rem;
+                color: var(--text);
+                max-width: 100%;
+                overflow-x: auto;
+            }
 
-    .install-cmd .prompt { color: var(--primary); }
+            .install-cmd .prompt {
+                color: var(--primary);
+            }
 
-    .copy-btn {
-      background: none;
-      border: 1px solid var(--muted);
-      border-radius: 4px;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 0.2rem 0.4rem;
-      font-family: inherit;
-      font-size: 0.75rem;
-      flex-shrink: 0;
-      transition: color 0.2s, border-color 0.2s;
-    }
+            .copy-btn {
+                background: none;
+                border: 1px solid var(--muted);
+                border-radius: 4px;
+                color: var(--muted);
+                cursor: pointer;
+                padding: 0.2rem 0.4rem;
+                font-family: inherit;
+                font-size: 0.75rem;
+                flex-shrink: 0;
+                transition:
+                    color 0.2s,
+                    border-color 0.2s;
+            }
 
-    .copy-btn:hover {
-      color: var(--secondary);
-      border-color: var(--secondary);
-    }
+            .copy-btn:hover {
+                color: var(--secondary);
+                border-color: var(--secondary);
+            }
 
-    .copy-btn.copied {
-      color: #a6e3a1;
-      border-color: #a6e3a1;
-    }
+            .copy-btn.copied {
+                color: #a6e3a1;
+                border-color: #a6e3a1;
+            }
 
-    /* Sections */
-    section {
-      padding: 3rem 0;
-      border-top: 1px solid var(--bg-surface);
-    }
+            /* Sections */
+            section {
+                padding: 3rem 0;
+                border-top: 1px solid var(--bg-surface);
+            }
 
-    section h2 {
-      color: var(--primary);
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-      text-transform: lowercase;
-    }
+            section h2 {
+                color: var(--primary);
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+                text-transform: lowercase;
+            }
 
-    /* Tools grid */
-    .tools {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 0.75rem;
-    }
+            /* Tools grid */
+            .tools {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 0.75rem;
+            }
 
-    a.tool {
-      display: block;
-      background: var(--bg-surface);
-      border-radius: 6px;
-      padding: 0.75rem 1rem;
-      text-decoration: none;
-      transition: border-color 0.2s;
-      border: 1px solid transparent;
-    }
+            a.tool {
+                display: block;
+                background: var(--bg-surface);
+                border-radius: 6px;
+                padding: 0.75rem 1rem;
+                text-decoration: none;
+                transition: border-color 0.2s;
+                border: 1px solid transparent;
+            }
 
-    a.tool:hover {
-      border-color: var(--primary);
-      text-decoration: none;
-    }
+            a.tool:hover {
+                border-color: var(--primary);
+                text-decoration: none;
+            }
 
-    .tool-name {
-      color: var(--text);
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
+            .tool-name {
+                color: var(--text);
+                font-weight: 600;
+                font-size: 0.85rem;
+            }
 
-    .tool-desc {
-      color: var(--muted);
-      font-size: 0.75rem;
-    }
+            .tool-desc {
+                color: var(--muted);
+                font-size: 0.75rem;
+            }
 
-    /* Install section */
-    .install-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
+            /* Install section */
+            .install-steps {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
 
-    .install-steps code {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      background: var(--bg-surface);
-      border-radius: 6px;
-      padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-    }
+            .install-steps code {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.75rem;
+                background: var(--bg-surface);
+                border-radius: 6px;
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
 
-    .install-steps code span.cmd-text { flex: 1; }
-    .install-steps code .prompt { color: var(--primary); }
-    .install-steps code .comment { color: var(--muted); }
+            .install-steps code span.cmd-text {
+                flex: 1;
+            }
+            .install-steps code .prompt {
+                color: var(--primary);
+            }
+            .install-steps code .comment {
+                color: var(--muted);
+            }
 
-    /* Features */
-    .features {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
+            /* Features */
+            .features {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
 
-    .feature {
-      background: var(--bg-surface);
-      border-radius: 6px;
-      padding: 1rem;
-    }
+            .feature {
+                background: var(--bg-surface);
+                border-radius: 6px;
+                padding: 1rem;
+            }
 
-    .feature h3 {
-      color: var(--secondary);
-      font-size: 0.85rem;
-      margin-bottom: 0.25rem;
-    }
+            .feature h3 {
+                color: var(--secondary);
+                font-size: 0.85rem;
+                margin-bottom: 0.25rem;
+            }
 
-    .feature p {
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
+            .feature p {
+                color: var(--muted);
+                font-size: 0.8rem;
+            }
 
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--bg-surface);
-      padding: 2rem 0;
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.75rem;
-    }
+            /* Footer */
+            footer {
+                border-top: 1px solid var(--bg-surface);
+                padding: 2rem 0;
+                text-align: center;
+                color: var(--muted);
+                font-size: 0.75rem;
+            }
 
-    /* Demo video */
-    .demo {
-      margin-bottom: 2rem;
-    }
+            /* Demo video */
+            .demo {
+                margin-bottom: 2rem;
+            }
 
-    .demo-desc {
-      color: var(--muted);
-      font-size: 0.8rem;
-      margin-bottom: 0.75rem;
-    }
+            .demo-desc {
+                color: var(--muted);
+                font-size: 0.8rem;
+                margin-bottom: 0.75rem;
+            }
 
-    .demo video {
-      width: 100%;
-      border-radius: 8px;
-      border: 1px solid var(--bg-surface);
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
+            .demo video {
+                width: 100%;
+                border-radius: 8px;
+                border: 1px solid var(--bg-surface);
+                cursor: pointer;
+                transition: border-color 0.2s;
+            }
 
-    .demo video:hover {
-      border-color: var(--primary);
-    }
+            .demo video:hover {
+                border-color: var(--primary);
+            }
 
-    .demo-hint {
-      color: var(--muted);
-      font-size: 0.7rem;
-      margin-top: 0.5rem;
-    }
+            .demo-hint {
+                color: var(--muted);
+                font-size: 0.7rem;
+                margin-top: 0.5rem;
+            }
 
-    /* Fullscreen overlay */
-    .video-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.9);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
+            /* Fullscreen overlay */
+            .video-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
 
-    .video-overlay.active {
-      display: flex;
-    }
+            .video-overlay.active {
+                display: flex;
+            }
 
-    .video-overlay video {
-      max-width: 90vw;
-      max-height: 90vh;
-      border-radius: 8px;
-    }
+            .video-overlay video {
+                max-width: 90vw;
+                max-height: 90vh;
+                border-radius: 8px;
+            }
 
-    @media (max-width: 600px) {
-      .hero pre { font-size: 0.6rem; }
-      .features { grid-template-columns: 1fr; }
-      .tools { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-  <a href="guide.html" style="position: fixed; top: 1.25rem; right: 1.5rem; color: var(--primary); font-family: inherit; font-size: 0.95rem; font-weight: 600; text-decoration: none; z-index: 100; display: flex; align-items: center; gap: 0.4rem;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--primary)'">&#9776; guide</a>
-  <div class="container">
-    <div class="hero">
-      <pre>
+            @media (max-width: 600px) {
+                .hero pre {
+                    font-size: 0.6rem;
+                }
+                .features {
+                    grid-template-columns: 1fr;
+                }
+                .tools {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <a
+            href="guide.html"
+            style="
+                position: fixed;
+                top: 1.25rem;
+                right: 1.5rem;
+                color: var(--primary);
+                font-family: inherit;
+                font-size: 0.95rem;
+                font-weight: 600;
+                text-decoration: none;
+                z-index: 100;
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+            "
+            onmouseover="this.style.color = 'var(--secondary)'"
+            onmouseout="this.style.color = 'var(--primary)'"
+            >&#9776; guide</a
+        >
+        <div class="container">
+            <div class="hero">
+                <pre>
    ___                       _
   / _ \ _ __ ___   __ _  ___| |__  _   _
  | | | | '_ ` _ \ / _` |/ __| '_ \| | | |
  | |_| | | | | | | (_| | (__| | | | |_| |
   \___/|_| |_| |_|\__,_|\___|_| |_|\__, |
-                                    |___/</pre>
-      <h1>A complete tiling window manager setup for macOS — one command, zero config</h1>
-      <p style="color: var(--muted); font-size: 0.8rem; margin-bottom: 2rem;">Omarchy for the rest of us</p>
-      <div class="demo">
-        <p class="demo-desc" style="color: var(--text); font-size: 0.85rem; max-width: 600px; margin: 0 auto 1rem;">Omachy transforms your Mac into a keyboard-driven development environment. Tiling windows that organize themselves, a custom menu bar, Neovim, Tmux, and a terminal tuned for productivity — all configured and wired together from a single command. No manual setup, no dotfile wrangling.</p>
-        <video id="demo-video" src="omachy.mp4" autoplay loop muted playsinline></video>
-        <p class="demo-hint">click to expand</p>
-      </div>
-      <div class="install-cmd">
-        <span><span class="prompt">$</span> brew tap dough654/omachy && brew install omachy && omachy install</span>
-        <button class="copy-btn" data-cmd="brew tap dough654/omachy && brew install omachy && omachy install">copy</button>
-      </div>
-      <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--muted);">after install, read the <a href="guide.html">guide</a></p>
-    </div>
+                                    |___/</pre
+                >
+                <h1>
+                    A complete tiling window manager setup for macOS — one
+                    command, zero config
+                </h1>
+                <p
+                    style="
+                        color: var(--muted);
+                        font-size: 0.8rem;
+                        margin-bottom: 2rem;
+                    "
+                >
+                    Omarchy for the rest of us
+                </p>
+                <div class="demo">
+                    <p
+                        class="demo-desc"
+                        style="
+                            color: var(--text);
+                            font-size: 0.85rem;
+                            max-width: 600px;
+                            margin: 0 auto 1rem;
+                        "
+                    >
+                        Omachy transforms your Mac into a keyboard-driven
+                        development environment. Tiling windows that organize
+                        themselves, a custom menu bar, Neovim, Tmux, and a
+                        terminal tuned for productivity — all configured and
+                        wired together from a single command. No manual setup,
+                        no dotfile wrangling.
+                    </p>
+                    <video
+                        id="demo-video"
+                        src="omachy.mp4"
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                    ></video>
+                    <p class="demo-hint">click to expand</p>
+                </div>
+                <div class="install-cmd">
+                    <span
+                        ><span class="prompt">$</span> brew tap dough654/omachy
+                        && brew install omachy && omachy install</span
+                    >
+                    <button
+                        class="copy-btn"
+                        data-cmd="brew tap dough654/omachy && brew install omachy && omachy install"
+                    >
+                        copy
+                    </button>
+                </div>
+                <p
+                    style="
+                        margin-top: 1rem;
+                        font-size: 0.8rem;
+                        color: var(--muted);
+                    "
+                >
+                    after install, read the <a href="guide.html">guide</a>
+                </p>
+            </div>
 
-    <section>
-      <h2>why omachy</h2>
-      <div class="features" style="grid-template-columns: 1fr;">
-        <div class="feature">
-          <h3>What is a tiling window manager?</h3>
-          <p>Instead of dragging and resizing windows by hand, a tiling WM automatically arranges them to fill your screen — no overlap, no wasted space. You navigate and rearrange with keyboard shortcuts instead of a mouse. It's how most Linux power users work, and Omachy brings that workflow to macOS.</p>
-        </div>
-        <div class="feature">
-          <h3>Who is this for?</h3>
-          <p>Developers who want a Linux-like, keyboard-driven workflow on macOS. If you've seen setups like Omarchy, Hyprland, or i3 and wanted that on your Mac — but didn't want to spend a weekend manually configuring a dozen tools — this is for you.</p>
-        </div>
-        <div class="feature">
-          <h3>What happens when I run it?</h3>
-          <p>The installer checks your system, backs up existing configs, installs 20+ tools via Homebrew, deploys pre-tuned configurations, and adjusts macOS system settings. Takes about 10 minutes. Fully reversible with <code style="background: var(--bg); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.75rem;">omachy uninstall</code>.</p>
-        </div>
-      </div>
-    </section>
+            <section>
+                <h2>why omachy</h2>
+                <div class="features" style="grid-template-columns: 1fr">
+                    <div class="feature">
+                        <h3>What is a tiling window manager?</h3>
+                        <p>
+                            Instead of dragging and resizing windows by hand, a
+                            tiling WM automatically arranges them to fill your
+                            screen — no overlap, no wasted space. You navigate
+                            and rearrange with keyboard shortcuts instead of a
+                            mouse. It's how most Linux power users work, and
+                            Omachy brings that workflow to macOS.
+                        </p>
+                    </div>
+                    <div class="feature">
+                        <h3>Who is this for?</h3>
+                        <p>
+                            Developers who want a Linux-like, keyboard-driven
+                            workflow on macOS. If you've seen setups like
+                            Omarchy, Hyprland, or i3 and wanted that on your Mac
+                            — but didn't want to spend a weekend manually
+                            configuring a dozen tools — this is for you.
+                        </p>
+                    </div>
+                    <div class="feature">
+                        <h3>What happens when I run it?</h3>
+                        <p>
+                            The installer checks your system, backs up existing
+                            configs, installs tools via Homebrew, configures
+                            latest development runtimes through mise, deploys
+                            pre-tuned configurations, and adjusts macOS system
+                            settings. Takes about 10 minutes. Fully reversible
+                            with
+                            <code
+                                style="
+                                    background: var(--bg);
+                                    padding: 0.1rem 0.3rem;
+                                    border-radius: 3px;
+                                    font-size: 0.75rem;
+                                "
+                                >omachy uninstall</code
+                            >.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-    <section>
-      <h2>what you get</h2>
-      <div class="tools">
-        <a class="tool" href="https://github.com/nikitabobko/AeroSpace" target="_blank" rel="noopener">
-          <div class="tool-name">AeroSpace</div>
-          <div class="tool-desc">Tiling window manager</div>
-        </a>
-        <a class="tool" href="https://github.com/FelixKratz/SketchyBar" target="_blank" rel="noopener">
-          <div class="tool-name">SketchyBar</div>
-          <div class="tool-desc">Custom menu bar</div>
-        </a>
-        <a class="tool" href="https://github.com/FelixKratz/JankyBorders" target="_blank" rel="noopener">
-          <div class="tool-name">JankyBorders</div>
-          <div class="tool-desc">Window border highlights</div>
-        </a>
-        <a class="tool" href="https://ghostty.org/" target="_blank" rel="noopener">
-          <div class="tool-name">Ghostty</div>
-          <div class="tool-desc">Terminal emulator</div>
-        </a>
-        <a class="tool" href="https://neovim.io/" target="_blank" rel="noopener">
-          <div class="tool-name">Neovim + Kickstart</div>
-          <div class="tool-desc">Text editor</div>
-        </a>
-        <a class="tool" href="https://github.com/tmux/tmux" target="_blank" rel="noopener">
-          <div class="tool-name">Tmux + TPM</div>
-          <div class="tool-desc">Terminal multiplexer</div>
-        </a>
-        <a class="tool" href="https://starship.rs/" target="_blank" rel="noopener">
-          <div class="tool-name">Starship</div>
-          <div class="tool-desc">Cross-shell prompt</div>
-        </a>
-        <a class="tool" href="https://github.com/junegunn/fzf" target="_blank" rel="noopener">
-          <div class="tool-name">fzf</div>
-          <div class="tool-desc">Fuzzy finder</div>
-        </a>
-        <a class="tool" href="https://github.com/jesseduffield/lazygit" target="_blank" rel="noopener">
-          <div class="tool-name">Lazygit</div>
-          <div class="tool-desc">Git TUI</div>
-        </a>
-        <a class="tool" href="https://cli.github.com/" target="_blank" rel="noopener">
-          <div class="tool-name">GitHub CLI</div>
-          <div class="tool-desc">gh command-line client</div>
-        </a>
-        <a class="tool" href="https://github.com/sst/opencode" target="_blank" rel="noopener">
-          <div class="tool-name">opencode</div>
-          <div class="tool-desc">AI coding agent CLI</div>
-        </a>
-        <a class="tool" href="https://github.com/jesseduffield/lazydocker" target="_blank" rel="noopener">
-          <div class="tool-name">Lazydocker</div>
-          <div class="tool-desc">Docker TUI</div>
-        </a>
-        <a class="tool" href="https://atuin.sh/" target="_blank" rel="noopener">
-          <div class="tool-name">Atuin</div>
-          <div class="tool-desc">Shell history search</div>
-        </a>
-        <a class="tool" href="https://github.com/fastfetch-cli/fastfetch" target="_blank" rel="noopener">
-          <div class="tool-name">fastfetch</div>
-          <div class="tool-desc">System info display</div>
-        </a>
-        <a class="tool" href="https://tree-sitter.github.io/tree-sitter/" target="_blank" rel="noopener">
-          <div class="tool-name">tree-sitter</div>
-          <div class="tool-desc">Parser generator</div>
-        </a>
-        <a class="tool" href="https://github.com/zsh-users/zsh-syntax-highlighting" target="_blank" rel="noopener">
-          <div class="tool-name">zsh-syntax-highlighting</div>
-          <div class="tool-desc">Fish-like syntax highlighting</div>
-        </a>
-        <a class="tool" href="https://github.com/zsh-users/zsh-autosuggestions" target="_blank" rel="noopener">
-          <div class="tool-name">zsh-autosuggestions</div>
-          <div class="tool-desc">Inline history suggestions</div>
-        </a>
-        <a class="tool" href="https://www.nerdfonts.com/" target="_blank" rel="noopener">
-          <div class="tool-name">Nerd Fonts</div>
-          <div class="tool-desc">Hack + JetBrains Mono</div>
-        </a>
-        <a class="tool" href="https://go.dev/" target="_blank" rel="noopener">
-          <div class="tool-name">Node, Python, Go</div>
-          <div class="tool-desc">Language runtimes</div>
-        </a>
-      </div>
-    </section>
+            <section>
+                <h2>what you get</h2>
+                <div class="tools">
+                    <a
+                        class="tool"
+                        href="https://github.com/nikitabobko/AeroSpace"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">AeroSpace</div>
+                        <div class="tool-desc">Tiling window manager</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://ghostty.org/"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">Ghostty</div>
+                        <div class="tool-desc">Terminal emulator</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://neovim.io/"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">Neovim + LazyVim</div>
+                        <div class="tool-desc">Text editor</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://github.com/tmux/tmux"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">Tmux + TPM</div>
+                        <div class="tool-desc">Terminal multiplexer</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://starship.rs/"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">Starship</div>
+                        <div class="tool-desc">Cross-shell prompt</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://github.com/junegunn/fzf"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">fzf</div>
+                        <div class="tool-desc">Fuzzy finder</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://github.com/jesseduffield/lazygit"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">Lazygit</div>
+                        <div class="tool-desc">Git TUI</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://cli.github.com/"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">GitHub CLI</div>
+                        <div class="tool-desc">gh command-line client</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://github.com/sst/opencode"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">opencode</div>
+                        <div class="tool-desc">AI coding agent CLI</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://github.com/jesseduffield/lazydocker"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">Lazydocker</div>
+                        <div class="tool-desc">Docker TUI</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://atuin.sh/"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">Atuin</div>
+                        <div class="tool-desc">Shell history search</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://github.com/fastfetch-cli/fastfetch"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">fastfetch</div>
+                        <div class="tool-desc">System info display</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://tree-sitter.github.io/tree-sitter/"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">tree-sitter</div>
+                        <div class="tool-desc">Parser generator</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://github.com/zsh-users/zsh-syntax-highlighting"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">zsh-syntax-highlighting</div>
+                        <div class="tool-desc">
+                            Fish-like syntax highlighting
+                        </div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://github.com/zsh-users/zsh-autosuggestions"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">zsh-autosuggestions</div>
+                        <div class="tool-desc">Inline history suggestions</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://www.nerdfonts.com/"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">Nerd Fonts</div>
+                        <div class="tool-desc">Hack + JetBrains Mono</div>
+                    </a>
+                    <a
+                        class="tool"
+                        href="https://mise.jdx.dev/"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        <div class="tool-name">mise runtimes</div>
+                        <div class="tool-desc">
+                            Node, Python, Bun, pnpm, Erlang, Elixir
+                        </div>
+                    </a>
+                </div>
+            </section>
 
-    <section>
-      <h2>features</h2>
-      <div class="features">
-        <div class="feature">
-          <h3>NeverOverwrite</h3>
-          <p>Sensitive configs (.zshrc, .tmux.conf) are never overwritten — your customizations are safe.</p>
-        </div>
-        <div class="feature">
-          <h3>Clean Uninstall</h3>
-          <p>Full reversal: removes packages, restores configs, and resets macOS defaults to their original values.</p>
-        </div>
-        <div class="feature">
-          <h3>Backup &amp; Restore</h3>
-          <p>Existing configs are backed up with timestamps before any changes are made.</p>
-        </div>
-        <div class="feature">
-          <h3>Named Workspaces</h3>
-          <p>Optional --named-workspaces flag for Dev, Web, Messaging, Email, and Scratch workspace labels.</p>
-        </div>
-        <div class="feature">
-          <h3>Drift Detection</h3>
-          <p>Run omachy status to see which deployed configs have been modified since installation.</p>
-        </div>
-        <div class="feature">
-          <h3>Single Binary</h3>
-          <p>All configs are embedded — no external files, no network fetches during install.</p>
-        </div>
-      </div>
-    </section>
+            <section>
+                <h2>features</h2>
+                <div class="features">
+                    <div class="feature">
+                        <h3>NeverOverwrite</h3>
+                        <p>
+                            Sensitive configs (.zshrc, .tmux.conf) are never
+                            overwritten — your customizations are safe.
+                        </p>
+                    </div>
+                    <div class="feature">
+                        <h3>Clean Uninstall</h3>
+                        <p>
+                            Full reversal: removes packages, restores configs,
+                            and resets macOS defaults to their original values.
+                        </p>
+                    </div>
+                    <div class="feature">
+                        <h3>Backup &amp; Restore</h3>
+                        <p>
+                            Existing configs are backed up with timestamps
+                            before any changes are made.
+                        </p>
+                    </div>
+                    <div class="feature">
+                        <h3>Named Workspaces</h3>
+                        <p>
+                            Optional --named-workspaces flag for Dev, Web,
+                            Messaging, Email, and Scratch workspace labels.
+                        </p>
+                    </div>
+                    <div class="feature">
+                        <h3>Drift Detection</h3>
+                        <p>
+                            Run omachy status to see which deployed configs have
+                            been modified since installation.
+                        </p>
+                    </div>
+                    <div class="feature">
+                        <h3>Single Binary</h3>
+                        <p>
+                            All configs are embedded — no external files, no
+                            network fetches during install.
+                        </p>
+                    </div>
+                </div>
+            </section>
 
-    <section id="install">
-      <h2>install</h2>
-      <div class="install-steps">
-        <code><span class="cmd-text"><span class="comment"># add the tap</span><br><span class="prompt">$</span> brew tap dough654/omachy</span><button class="copy-btn" data-cmd="brew tap dough654/omachy">copy</button></code>
-        <code><span class="cmd-text"><span class="comment"># install the binary</span><br><span class="prompt">$</span> brew install omachy</span><button class="copy-btn" data-cmd="brew install omachy">copy</button></code>
-        <code><span class="cmd-text"><span class="comment"># run the installer</span><br><span class="prompt">$</span> omachy install</span><button class="copy-btn" data-cmd="omachy install">copy</button></code>
-      </div>
-    </section>
+            <section id="install">
+                <h2>install</h2>
+                <div class="install-steps">
+                    <code
+                        ><span class="cmd-text"
+                            ><span class="comment"># add the tap</span
+                            ><br /><span class="prompt">$</span> brew tap
+                            dough654/omachy</span
+                        ><button
+                            class="copy-btn"
+                            data-cmd="brew tap dough654/omachy"
+                        >
+                            copy
+                        </button></code
+                    >
+                    <code
+                        ><span class="cmd-text"
+                            ><span class="comment"># install the binary</span
+                            ><br /><span class="prompt">$</span> brew install
+                            omachy</span
+                        ><button
+                            class="copy-btn"
+                            data-cmd="brew install omachy"
+                        >
+                            copy
+                        </button></code
+                    >
+                    <code
+                        ><span class="cmd-text"
+                            ><span class="comment"># run the installer</span
+                            ><br /><span class="prompt">$</span> omachy
+                            install</span
+                        ><button class="copy-btn" data-cmd="omachy install">
+                            copy
+                        </button></code
+                    >
+                </div>
+            </section>
 
-    <footer>
-      <a href="guide.html">Guide</a> &middot; <a href="https://github.com/dough654/Omachy">GitHub</a> &middot; MIT License &middot; Inspired by <a href="https://omakub.org/">Omarchy</a>
-    </footer>
-  </div>
-  <div class="video-overlay" id="video-overlay">
-    <video id="overlay-video" src="omachy.mp4" autoplay loop muted playsinline></video>
-  </div>
-  <script>
-    document.querySelectorAll('.copy-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var cmd = btn.getAttribute('data-cmd');
-        navigator.clipboard.writeText(cmd).then(function() {
-          btn.textContent = 'copied!';
-          btn.classList.add('copied');
-          setTimeout(function() {
-            btn.textContent = 'copy';
-            btn.classList.remove('copied');
-          }, 1500);
-        });
-      });
-    });
+            <footer>
+                <a href="guide.html">Guide</a> &middot;
+                <a href="https://github.com/dough654/Omachy">GitHub</a> &middot;
+                MIT License &middot; Inspired by
+                <a href="https://omakub.org/">Omarchy</a>
+            </footer>
+        </div>
+        <div class="video-overlay" id="video-overlay">
+            <video
+                id="overlay-video"
+                src="omachy.mp4"
+                autoplay
+                loop
+                muted
+                playsinline
+            ></video>
+        </div>
+        <script>
+            document.querySelectorAll(".copy-btn").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var cmd = btn.getAttribute("data-cmd");
+                    navigator.clipboard.writeText(cmd).then(function () {
+                        btn.textContent = "copied!";
+                        btn.classList.add("copied");
+                        setTimeout(function () {
+                            btn.textContent = "copy";
+                            btn.classList.remove("copied");
+                        }, 1500);
+                    });
+                });
+            });
 
-    var demoVideo = document.getElementById('demo-video');
-    var overlay = document.getElementById('video-overlay');
-    var overlayVideo = document.getElementById('overlay-video');
+            var demoVideo = document.getElementById("demo-video");
+            var overlay = document.getElementById("video-overlay");
+            var overlayVideo = document.getElementById("overlay-video");
 
-    demoVideo.addEventListener('click', function() {
-      overlay.classList.add('active');
-      overlayVideo.currentTime = demoVideo.currentTime;
-    });
+            demoVideo.addEventListener("click", function () {
+                overlay.classList.add("active");
+                overlayVideo.currentTime = demoVideo.currentTime;
+            });
 
-    overlay.addEventListener('click', function() {
-      overlay.classList.remove('active');
-    });
-  </script>
-</body>
+            overlay.addEventListener("click", function () {
+                overlay.classList.remove("active");
+            });
+        </script>
+    </body>
 </html>

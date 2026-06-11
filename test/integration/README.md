@@ -33,7 +33,7 @@ Each run:
 1. Clones a fresh VM from `omachy-base` (takes seconds, copy-on-write)
 2. Boots it headless
 3. Builds the omachy binary and copies it into the VM
-4. Verifies pre-install state (no aerospace/sketchybar/borders running)
+4. Verifies pre-install state (AeroSpace is not running)
 5. Runs `omachy install --force --skip-backup`
 6. Verifies post-install state (configs deployed, defaults applied, zshrc updated)
 7. Runs `omachy uninstall`
@@ -82,8 +82,6 @@ When AeroSpace starts, a system dialog will appear asking for Accessibility perm
 
 After install completes, verify directly in the VM GUI:
 - AeroSpace is tiling windows
-- SketchyBar is visible in the menu bar
-- JankyBorders outlines the active window
 - Dock is auto-hidden
 
 ### 5. Test uninstall
@@ -95,7 +93,7 @@ In the same Terminal window inside the VM:
 ```
 
 Verify:
-- AeroSpace, SketchyBar, and JankyBorders are no longer running
+- AeroSpace is no longer running
 - The Dock and menu bar are back to their default appearance
 
 ### 6. Clean up

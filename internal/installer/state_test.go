@@ -17,11 +17,14 @@ func TestSaveAndLoadState(t *testing.T) {
 			{Name: "neovim"},
 			{Name: "ghostty", Cask: true},
 		},
-		InstalledTaps:    []string{"nikitabobko/tap"},
+		InstalledTaps: []string{"nikitabobko/tap"},
+		InstalledRuntimes: []InstalledRuntime{
+			{Name: "node", Spec: "node@latest"},
+		},
 		DeployedConfigs:  map[string]string{"~/.config/nvim": "abc123"},
 		OriginalDefaults: map[string]string{"dock-autohide": "false"},
 		BackupPath:       "/tmp/backup-123",
-		Services:         []string{"sketchybar"},
+		Services:         []string{"svc1"},
 	}
 
 	if err := SaveState(original); err != nil {
@@ -45,6 +48,9 @@ func TestSaveAndLoadState(t *testing.T) {
 	if len(loaded.InstalledTaps) != 1 || loaded.InstalledTaps[0] != "nikitabobko/tap" {
 		t.Errorf("InstalledTaps mismatch: got %v", loaded.InstalledTaps)
 	}
+	if len(loaded.InstalledRuntimes) != 1 || loaded.InstalledRuntimes[0].Spec != "node@latest" {
+		t.Errorf("InstalledRuntimes mismatch: got %v", loaded.InstalledRuntimes)
+	}
 	if loaded.DeployedConfigs["~/.config/nvim"] != "abc123" {
 		t.Errorf("DeployedConfigs mismatch")
 	}
@@ -54,7 +60,7 @@ func TestSaveAndLoadState(t *testing.T) {
 	if loaded.BackupPath != "/tmp/backup-123" {
 		t.Errorf("BackupPath: got %q", loaded.BackupPath)
 	}
-	if len(loaded.Services) != 1 || loaded.Services[0] != "sketchybar" {
+	if len(loaded.Services) != 1 || loaded.Services[0] != "svc1" {
 		t.Errorf("Services mismatch: got %v", loaded.Services)
 	}
 }
@@ -88,6 +94,7 @@ func TestStateJsonFormat(t *testing.T) {
 	s := &State{
 		InstalledPackages: []InstalledPackage{{Name: "pkg1"}},
 		InstalledTaps:     []string{"tap1"},
+		InstalledRuntimes: []InstalledRuntime{{Name: "node", Spec: "node@latest"}},
 		DeployedConfigs:   map[string]string{"a": "b"},
 		OriginalDefaults:  map[string]string{"c": "d"},
 		BackupPath:        "/backup",
@@ -105,7 +112,7 @@ func TestStateJsonFormat(t *testing.T) {
 		t.Fatalf("state file is not valid JSON: %v", err)
 	}
 
-	expectedKeys := []string{"installed_packages", "installed_taps", "deployed_configs", "original_defaults", "backup_path", "services"}
+	expectedKeys := []string{"installed_packages", "installed_taps", "installed_runtimes", "deployed_configs", "original_defaults", "backup_path", "services"}
 	for _, key := range expectedKeys {
 		if _, ok := raw[key]; !ok {
 			t.Errorf("missing expected key %q in state JSON", key)

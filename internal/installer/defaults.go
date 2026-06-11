@@ -33,7 +33,7 @@ var MacOSDefaults = []MacOSDefault{
 	{"NSGlobalDomain", "KeyRepeat", "-int", "1", "Fastest key repeat rate"},
 	{"NSGlobalDomain", "InitialKeyRepeat", "-int", "10", "Shortest key repeat delay"},
 	{"-g", "ApplePressAndHoldEnabled", "-bool", "false", "Disable press-and-hold for key repeat"},
-	{"NSGlobalDomain", "_HIHideMenuBar", "-bool", "true", "Auto-hide menu bar"},
+	// {"NSGlobalDomain", "_HIHideMenuBar", "-bool", "true", "Auto-hide menu bar"},
 	{"com.apple.WindowManager", "StandardHideWidgets", "-bool", "true", "Hide desktop widgets"},
 }
 
@@ -86,13 +86,10 @@ func runSystem(p *tea.Program, opts Options) error {
 
 	p.Send(tui.ProgressUpdate{Percent: 90})
 
-	// Note: sketchybar and borders are started by AeroSpace via after-startup-command,
-	// not as brew services, to avoid duplicate instances.
-
 	// Record which managed processes are already running before we start them,
 	// so uninstall only kills processes that Omachy started.
 	if !opts.DryRun {
-		for _, proc := range []string{"AeroSpace", "sketchybar", "borders"} {
+		for _, proc := range []string{"AeroSpace"} {
 			if isProcessRunning(proc) {
 				state.RunningProcesses = appendUnique(state.RunningProcesses, proc)
 			}

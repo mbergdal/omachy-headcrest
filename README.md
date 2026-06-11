@@ -13,10 +13,8 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 | Tool | Type | Description |
 |------|------|-------------|
 | [AeroSpace](https://github.com/nikitabobko/AeroSpace) | Cask | Tiling window manager |
-| [SketchyBar](https://github.com/FelixKratz/SketchyBar) | Formula | Custom menu bar replacement |
-| [JankyBorders](https://github.com/FelixKratz/JankyBorders) | Formula | Window border highlights |
 | [Ghostty](https://ghostty.org/) | Cask | Terminal emulator |
-| [Neovim](https://neovim.io/) | Formula | Text editor (Kickstart.nvim cloned if no config exists) |
+| [Neovim](https://neovim.io/) | Formula | Text editor (LazyVim starter cloned if no config exists) |
 | [tree-sitter](https://tree-sitter.github.io/tree-sitter/) | Formula | Parser generator for syntax highlighting |
 | [Tmux](https://github.com/tmux/tmux) | Formula | Terminal multiplexer (TPM + plugins) |
 | [Starship](https://starship.rs/) | Formula | Cross-shell prompt |
@@ -29,11 +27,22 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 | [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) | Formula | Fish-like syntax highlighting for Zsh |
 | [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) | Formula | Fish-like inline suggestions from history |
 | [fastfetch](https://github.com/fastfetch-cli/fastfetch) | Formula | System info display |
-| [Node.js](https://nodejs.org/) | Formula | JavaScript runtime *(skipped if already installed)* |
-| [Python](https://www.python.org/) | Formula | Python runtime *(skipped if already installed)* |
-| [Go](https://go.dev/) | Formula | Go runtime *(skipped if already installed)* |
-| [Hack Nerd Font](https://www.nerdfonts.com/) | Cask | Nerd Font for SketchyBar icons |
+| [mise](https://mise.jdx.dev/) | Formula | Runtime manager for development languages and tools |
+| [Hack Nerd Font](https://www.nerdfonts.com/) | Cask | Nerd Font for terminal/icons |
 | [JetBrains Mono](https://www.jetbrains.com/lp/mono/) | Cask | Monospace font for terminal |
+
+**Language runtimes** are installed and set globally through `mise`:
+
+| Runtime | Version |
+|---------|---------|
+| Node.js | `latest` |
+| Python | `latest` |
+| Bun | `latest` |
+| pnpm | `latest` |
+| Erlang | `latest` |
+| Elixir | `latest` |
+
+After Node is installed, npm is updated with `mise exec -- npm install -g npm@latest`.
 
 ## What Gets Configured
 
@@ -42,8 +51,6 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 | Source | Destination |
 |--------|------------|
 | `aerospace/aerospace.toml` | `~/.config/aerospace/aerospace.toml` |
-| `sketchybar/` | `~/.config/sketchybar/` |
-| `borders/bordersrc` | `~/.config/borders/bordersrc` |
 | `ghostty/config` | `~/Library/Application Support/com.mitchellh.ghostty/config` |
 | `tmux/tmux.conf` | `~/.tmux.conf` *(NeverOverwrite)* |
 | `starship.toml` | `~/.config/starship.toml` |
@@ -55,12 +62,12 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 |------|----------|
 | `~/.zshrc` | Never replaced. Omachy only appends a managed block (between clearly marked markers) for shell integrations. Everything else in your `.zshrc` is untouched. |
 | `~/.tmux.conf` | Never replaced. If the file already exists, deployment is skipped entirely — your tmux config is preserved as-is. |
-| `~/.config/nvim/` | Never replaced. Kickstart.nvim is only cloned if no Neovim config exists. |
+| `~/.config/nvim/` | Never replaced. LazyVim starter is only cloned if no Neovim config exists. |
 
 Additionally, the installer:
 
-- Injects shell integrations (Starship, fzf, Atuin, zsh-syntax-highlighting, zsh-autosuggestions) into `~/.zshrc` via a managed block — existing content is preserved
-- Clones [Kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) to `~/.config/nvim/` if no Neovim config exists
+- Injects shell integrations (mise, Starship, fzf, Atuin, zsh-syntax-highlighting, zsh-autosuggestions) into `~/.zshrc` via a managed block — existing content is preserved
+- Clones [LazyVim starter](https://github.com/LazyVim/starter) to `~/.config/nvim/` if no Neovim config exists
 - Clones [TPM](https://github.com/tmux-plugins/tpm) to `~/.tmux/plugins/tpm` if not already installed
 
 **macOS system defaults** are adjusted:
@@ -71,7 +78,6 @@ Additionally, the installer:
 - Disable window open/close animations
 - Fastest key repeat rate with shortest initial delay
 - Disable press-and-hold for key repeat
-- Auto-hide the menu bar (replaced by SketchyBar)
 - Hide desktop widgets
 - Show all file extensions
 - Scale minimize effect
@@ -101,13 +107,14 @@ go build -o omachy .
 
 ### `omachy install`
 
-Runs the full installation through an interactive TUI with five phases:
+Runs the full installation through an interactive TUI with six phases:
 
 1. **Preflight** — checks architecture, macOS version, Homebrew, Xcode CLI tools, and Spaces settings
 2. **Backup** — copies any existing config files to `~/.omachy/backups/<timestamp>/`
 3. **Packages** — taps Homebrew repos and installs all packages
-4. **Configs** — deploys embedded config files to their destinations
-5. **System** — applies macOS defaults, starts brew services, prompts for AeroSpace accessibility permissions
+4. **Runtimes** — installs latest Node.js, Python, Bun, pnpm, Erlang, and Elixir through `mise`
+5. **Configs** — deploys embedded config files to their destinations
+6. **System** — applies macOS defaults and prompts for AeroSpace accessibility permissions
 
 **Flags:**
 
@@ -122,7 +129,7 @@ Runs the full installation through an interactive TUI with five phases:
 
 ### `omachy uninstall`
 
-Reverses the installation — stops services, removes configs, uninstalls packages, and restores original macOS defaults from saved state.
+Reverses the installation — stops started processes, removes configs, removes mise runtimes, uninstalls packages, and restores original macOS defaults from saved state.
 
 **Flags:**
 
@@ -153,8 +160,6 @@ Prints the version string.
 ├── configs_embed.go           # go:embed directive for configs/
 ├── configs/                   # Embedded config files (deployed at install time)
 │   ├── aerospace/
-│   ├── sketchybar/
-│   ├── borders/
 │   ├── ghostty/
 │   ├── omachy/
 │   └── tmux/
@@ -222,7 +227,6 @@ The installer writes `~/.omachy/state.json` with the following structure:
     "com.apple.dock:tilesize": "-int:64"
   },
   "backup_path": "/Users/you/.omachy/backups/20260314-182007",
-  "services": ["sketchybar", "borders"],
   "running_processes": ["AeroSpace"]
 }
 ```

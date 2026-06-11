@@ -18,10 +18,17 @@ type InstalledPackage struct {
 	Cask bool   `json:"cask,omitempty"`
 }
 
+// InstalledRuntime records a mise-managed runtime that Omachy configured.
+type InstalledRuntime struct {
+	Name string `json:"name"`
+	Spec string `json:"spec"`
+}
+
 // State tracks what was installed for uninstall/status.
 type State struct {
 	InstalledPackages []InstalledPackage `json:"installed_packages"`
 	InstalledTaps     []string           `json:"installed_taps"`
+	InstalledRuntimes []InstalledRuntime `json:"installed_runtimes"`
 	DeployedConfigs   map[string]string  `json:"deployed_configs"`  // dest path → sha256
 	OriginalDefaults  map[string]string  `json:"original_defaults"` // key → original value
 	BackupPath        string             `json:"backup_path"`

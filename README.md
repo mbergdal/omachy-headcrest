@@ -17,11 +17,15 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 | [Neovim](https://neovim.io/) | Formula | Text editor (LazyVim starter cloned if no config exists) |
 | [tree-sitter](https://tree-sitter.github.io/tree-sitter/) | Formula | Parser generator for syntax highlighting |
 | [Tmux](https://github.com/tmux/tmux) | Formula | Terminal multiplexer (TPM + plugins) |
+| [Zed](https://zed.dev/) | Cask | Graphical code editor |
+| [Zen Browser](https://zen-browser.app/) | Cask | Web browser |
+| [Raycast](https://www.raycast.com/) | Cask | Launcher and automation |
 | [Starship](https://starship.rs/) | Formula | Cross-shell prompt |
 | [fzf](https://github.com/junegunn/fzf) | Formula | Fuzzy finder |
 | [Lazygit](https://github.com/jesseduffield/lazygit) | Formula | Git TUI |
 | [GitHub CLI](https://cli.github.com/) | Formula | `gh` command-line client |
 | [opencode](https://github.com/sst/opencode) | Formula | AI coding agent CLI |
+| [Yazi](https://yazi-rs.github.io/) | Formula | Terminal file manager |
 | [Lazydocker](https://github.com/jesseduffield/lazydocker) | Formula | Docker TUI |
 | [Atuin](https://atuin.sh/) | Formula | Shell history search & sync |
 | [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) | Formula | Fish-like syntax highlighting for Zsh |
@@ -54,7 +58,13 @@ After Node is installed, npm is updated with `mise exec -- npm install -g npm@la
 | `ghostty/config` | `~/Library/Application Support/com.mitchellh.ghostty/config` |
 | `tmux/tmux.conf` | `~/.tmux.conf` *(NeverOverwrite)* |
 | `starship.toml` | `~/.config/starship.toml` |
+| `zed/keymap.json` | `~/.config/zed/keymap.json` |
+| `zed/settings.json` | `~/.config/zed/settings.json` |
 | `omachy/dev-session.sh` | `~/.config/omachy/dev-session.sh` |
+| `yazi/keymap.toml` | `~/.config/yazi/keymap.toml` |
+| `yazi/theme.toml` | `~/.config/yazi/theme.toml` |
+| `yazi/yazi.toml` | `~/.config/yazi/yazi.toml` |
+| `zshrc/.aliases` | `~/.aliases` |
 
 **These files are never overwritten:**
 
@@ -66,9 +76,10 @@ After Node is installed, npm is updated with `mise exec -- npm install -g npm@la
 
 Additionally, the installer:
 
-- Injects shell integrations (mise, Starship, fzf, Atuin, zsh-syntax-highlighting, zsh-autosuggestions) into `~/.zshrc` via a managed block — existing content is preserved
+- Injects shell integrations and `configs/zshrc/extras` (sources `~/.aliases`, Yazi `y` helper, `EDITOR=nvim`) into `~/.zshrc` via a managed block — existing content is preserved
 - Clones [LazyVim starter](https://github.com/LazyVim/starter) to `~/.config/nvim/` if no Neovim config exists
 - Clones [TPM](https://github.com/tmux-plugins/tpm) to `~/.tmux/plugins/tpm` if not already installed
+- Deploys Zed settings/keymaps, Yazi configuration, and shell aliases
 
 **macOS system defaults** are adjusted:
 

@@ -1,0 +1,148 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run the `open default settings` command
+// from the command palette or from `Zed` application menu.
+{
+  "cli_default_open_behavior": "new_window",
+  "git_panel": {
+    "dock": "left",
+  },
+  "icon_theme": "Catppuccin Mocha",
+  "features": {
+    "edit_prediction_provider": "zed",
+  },
+  "theme": "Gruvbox Dark Hard",
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
+  "vim_mode": true,
+  "ui_font_size": 16,
+  "buffer_font_size": 16.0,
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "buffer_line_height": {
+    "custom": 1.5,
+  },
+  "terminal": {
+    "font_family": "JetBrainsMono Nerd Font",
+    "font_size": 16,
+    "line_height": {
+      "custom": 1.5,
+    },
+  },
+  // Indentation, rainbow indentation
+  "indent_guides": {
+    "enabled": true,
+    "coloring": "indent_aware",
+  },
+  "tab_bar": { "show": false },
+  "relative_line_numbers": "enabled",
+  "soft_wrap": "none",
+  "wrap_guides": [110, 140],
+  "cursor_blink": false,
+  "scrollbar": {
+    "show": "never",
+  },
+  "vertical_scroll_margin": 0,
+  "tabs": {
+    "file_icons": true,
+  },
+  "inlay_hints": {
+    "enabled": true,
+  },
+  "languages": {
+    "Swift": {
+      "language_servers": ["sourcekit-lsp", "package-swift-lsp"],
+    },
+    "HTML": {
+      "language_servers": [
+        "tailwindcss-language-server",
+        "emmet-language-server",
+      ],
+    },
+    "ex": {
+      "language_servers": [
+        "tailwindcss-language-server",
+        "emmet-language-server",
+      ],
+    },
+    "TypeScript": {
+      "inlay_hints": {
+        "enabled": false,
+      },
+    },
+    "TSX": {
+      "inlay_hints": {
+        "enabled": false,
+      },
+    },
+    "html.heex": {
+      "format_on_save": "on",
+      "language_servers": [
+        "tailwindcss-language-server",
+        "emmet-language-server",
+      ],
+      "inlay_hints": {
+        "enabled": true,
+      },
+    },
+  },
+  "lsp": {
+    "tailwindcss-language-server": {
+      "settings": {
+        "classAttributes": ["class", "className", "ngClass", "styles"],
+        "includeLanguages": {
+          "ex": "html",
+          "html.heex": "html",
+        },
+      },
+    },
+  },
+  // File scan exclusions, hide on the file explorer and search
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/.svn",
+    "**/.hg",
+    "**/CVS",
+    "**/.DS_Store",
+    "**/Thumbs.db",
+    "**/.classpath",
+    "**/.settings",
+    // above is default from Zed
+    "**/out",
+    "**/dist",
+    "**/.husky",
+    "**/.turbo",
+    "**/.vscode-test",
+    "**/.vscode",
+    "**/.next",
+    "**/.storybook",
+    "**/.tap",
+    "**/.nyc_output",
+    "**/report",
+    "**/node_modules",
+  ],
+  // Move all panel to the right
+  "project_panel": {
+    "button": true,
+    "dock": "left",
+    "git_status": true,
+  },
+  "outline_panel": {
+    "dock": "right",
+  },
+  "collaboration_panel": {
+    "dock": "left",
+  },
+  // Move some unnecessary panels to the left
+  "notification_panel": {
+    "dock": "left",
+  },
+  "chat_panel": {
+    "dock": "left",
+  },
+}

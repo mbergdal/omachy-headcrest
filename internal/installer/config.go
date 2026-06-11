@@ -211,6 +211,7 @@ func runConfigs(p *tea.Program, opts Options) error {
 const (
 	zshrcMarkerStart = "# ── Omachy managed (do not edit between these markers) ──"
 	zshrcMarkerEnd   = "# ── End Omachy managed ──"
+	zshrcExtrasPath  = "configs/zshrc/extras"
 )
 
 // shellIntegrations are the init lines for tools that need shell configuration.
@@ -230,6 +231,22 @@ var shellIntegrations = []struct {
 }
 
 func updateZshrcBlock(path string, log func(string)) error {
+	extras, err := loadZshrcExtras()
+	if err != nil {
+		return err
+	}
+	return updateZshrcBlockWithExtras(path, extras, log)
+}
+
+func loadZshrcExtras() (string, error) {
+	data, err := EmbeddedConfigs.ReadFile(zshrcExtrasPath)
+	if err != nil {
+		return "", fmt.Errorf("read embedded %s: %w", zshrcExtrasPath, err)
+	}
+	return string(data), nil
+}
+
+func updateZshrcBlockWithExtras(path, extras string, log func(string)) error {
 	// Read existing content, or start with empty
 	existing := ""
 	if data, err := os.ReadFile(path); err == nil {
@@ -255,6 +272,15 @@ func updateZshrcBlock(path string, log func(string)) error {
 		} else {
 			lines = append(lines, si.line)
 			log(fmt.Sprintf("    Adding: %s", si.line))
+		}
+	}
+	trimmedExtras := strings.Trim(extras, "\n")
+	if trimmedExtras != "" {
+		if strings.Contains(cleaned, trimmedExtras) {
+			log("    Already present outside managed block: zshrc extras")
+		} else {
+			lines = append(lines, trimmedExtras)
+			log("    Adding: zshrc extras")
 		}
 	}
 

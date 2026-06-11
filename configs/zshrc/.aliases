@@ -1,0 +1,19 @@
+alias cds="cd ~/code/sandbox"
+alias cdS="cd ~/code/setpoint"
+alias cdc="cd ~/.config"
+alias cdcn="cd ~/.config/nvim"
+alias nz="nvim ~/.zshrc"
+
+alias sz="source ~/.zshrc"
+alias cl="clear"
+
+alias ls='eza --color'
+alias la='eza -a'
+alias ll='eza -l'
+alias lla='eza -la'
+
+alias lg="lazygit"
+alias ld="lazydocker"
+alias cat="bat -pp"
+alias tt="tt -n 30"
+alias python="python3"

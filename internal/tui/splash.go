@@ -93,6 +93,7 @@ func renderInstallSplash(b *strings.Builder, opts SplashOptions, bullet string) 
 		{"fzf", "fuzzy finder"},
 		{"Docker + Compose + Colima", "container tooling"},
 		{"eza", "modern ls replacement"},
+		{"bat", "better cat with syntax highlighting"},
 		{"Lazygit", "git TUI"},
 		{"GitHub CLI", "gh command-line client"},
 		{"opencode", "AI coding agent CLI"},

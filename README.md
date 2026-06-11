@@ -27,6 +27,7 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 | [Docker Compose](https://docs.docker.com/compose/) | Formula | Compose plugin/CLI |
 | [Colima](https://github.com/abiosoft/colima) | Formula | Docker runtime on macOS; installed as a brew service |
 | [eza](https://github.com/eza-community/eza) | Formula | Modern `ls` replacement |
+| [bat](https://github.com/sharkdp/bat) | Formula | `cat` replacement with syntax highlighting |
 | [Lazygit](https://github.com/jesseduffield/lazygit) | Formula | Git TUI |
 | [GitHub CLI](https://cli.github.com/) | Formula | `gh` command-line client |
 | [opencode](https://github.com/sst/opencode) | Formula | AI coding agent CLI |

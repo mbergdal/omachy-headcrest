@@ -4,8 +4,8 @@ import "testing"
 
 func TestPackages(t *testing.T) {
 	pkgs := Packages()
-	if len(pkgs) != 29 {
-		t.Fatalf("expected 29 packages, got %d", len(pkgs))
+	if len(pkgs) != 31 {
+		t.Fatalf("expected 31 packages, got %d", len(pkgs))
 	}
 	seen := map[string]bool{}
 	for i, pkg := range pkgs {
@@ -17,7 +17,7 @@ func TestPackages(t *testing.T) {
 	if !seen["mise"] {
 		t.Error("expected mise package")
 	}
-	for _, added := range []string{"zed", "zen", "raycast", "1password", "superhuman", "docker", "docker-compose", "colima", "eza", "bat", "yazi"} {
+	for _, added := range []string{"zed", "zen", "raycast", "1password", "superhuman", "claude", "chatgpt", "docker", "docker-compose", "colima", "eza", "bat", "yazi"} {
 		if !seen[added] {
 			t.Errorf("expected %s package", added)
 		}

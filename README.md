@@ -22,6 +22,8 @@ Omachy brings the [Omarchy](https://omakub.org/) experience to macOS — a tilin
 | [Raycast](https://www.raycast.com/) | Cask | Launcher and automation |
 | [1Password](https://1password.com/) | Cask | Password manager |
 | [Superhuman](https://superhuman.com/) | Cask | Email client |
+| [Claude](https://claude.ai/) | Cask | AI assistant app |
+| [ChatGPT](https://chatgpt.com/) | Cask | AI assistant app |
 | [Starship](https://starship.rs/) | Formula | Cross-shell prompt |
 | [fzf](https://github.com/junegunn/fzf) | Formula | Fuzzy finder |
 | [Docker](https://www.docker.com/) | Formula | Docker CLI |

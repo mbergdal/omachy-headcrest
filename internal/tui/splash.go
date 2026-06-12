@@ -86,6 +86,8 @@ func renderInstallSplash(b *strings.Builder, opts SplashOptions, bullet string) 
 		{"Raycast", "launcher and automation"},
 		{"1Password", "password manager"},
 		{"Superhuman", "email client"},
+		{"Claude", "AI assistant app"},
+		{"ChatGPT", "AI assistant app"},
 		{"Tmux + TPM", "terminal multiplexer"},
 		{"Yazi", "terminal file manager"},
 		{"mise", "runtime manager"},

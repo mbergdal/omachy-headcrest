@@ -46,6 +46,8 @@ func Packages() []Package {
 		{Name: "raycast", Cask: true},
 		{Name: "1password", Cask: true},
 		{Name: "superhuman", Cask: true},
+		{Name: "claude", Cask: true},
+		{Name: "chatgpt", Cask: true},
 		{Name: "starship"},
 		{Name: "fzf"},
 		{Name: "docker"},

@@ -18,6 +18,14 @@ type SplashOptions struct {
 	NamedWorkspaces bool
 }
 
+const logo = `
+   ___                       _
+  / _ \ _ __ ___   __ _  ___| |__  _   _
+ | | | | '_ ` + "`" + ` _ \ / _` + "`" + ` |/ __| '_ \| | | |
+ | |_| | | | | | | (_| | (__| | | | |_| |
+  \___/|_| |_| |_|\__,_|\___|_| |_|\__, |
+                                    |___/`
+
 var (
 	splashLogo = lipgloss.NewStyle().
 			Foreground(colorPrimary).
@@ -44,15 +52,6 @@ var (
 
 func renderSplash(width, height int, opts SplashOptions, version string) string {
 	var b strings.Builder
-
-	// Logo
-	logo := `
-   ___                       _
-  / _ \ _ __ ___   __ _  ___| |__  _   _
- | | | | '_ ` + "`" + ` _ \ / _` + "`" + ` |/ __| '_ \| | | |
- | |_| | | | | | | (_| | (__| | | | |_| |
-  \___/|_| |_| |_|\__,_|\___|_| |_|\__, |
-                                    |___/`
 
 	b.WriteString(splashLogo.Render(logo))
 	b.WriteString("\n\n")

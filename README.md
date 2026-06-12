@@ -147,14 +147,16 @@ go build -o omachy .
 
 ### `omachy install`
 
-Runs the full installation through an interactive TUI with six phases:
+Runs the installation through an interactive TUI. Before the phases start, Omachy scans Homebrew, shows every package from the manifest, and lets you select what to install/configure. Missing packages are selected by default; already-installed packages are unchecked by default, but you can select them to let Omachy manage related configs and startup actions.
+
+The installer then runs six phases:
 
 1. **Preflight** — checks architecture, macOS version, Homebrew, Xcode CLI tools, and Spaces settings
 2. **Backup** — copies any existing config files to `~/.omachy/backups/<timestamp>/`
-3. **Packages** — taps Homebrew repos and installs all packages
-4. **Runtimes** — installs latest Node.js, Python, Bun, pnpm, Erlang, and Elixir through `mise`
-5. **Configs** — deploys embedded config files to their destinations
-6. **System** — applies macOS defaults, starts brew services such as Colima, and prompts for AeroSpace accessibility permissions
+3. **Packages** — taps Homebrew repos and installs selected packages
+4. **Runtimes** — installs latest Node.js, Python, Bun, pnpm, Erlang, and Elixir through `mise` when `mise` is selected
+5. **Configs** — deploys embedded config files related to selected packages
+6. **System** — applies macOS defaults, starts selected brew services such as Colima, and prompts for AeroSpace accessibility permissions when AeroSpace is selected
 
 **Flags:**
 
@@ -166,6 +168,8 @@ Runs the full installation through an interactive TUI with six phases:
 | `--verbose` | Show detailed output |
 | `--named-workspaces` | Use named workspaces (D/W/M/E/S) with app-to-workspace rules instead of numbered 1–9 |
 | `--quiet` | Run without the TUI (log to stdout) |
+
+`--quiet` keeps the previous full-install behavior and does not show the package selector.
 
 ### `omachy uninstall`
 

@@ -42,8 +42,13 @@ var installCmd = &cobra.Command{
 			NamedWorkspaces: flagNamedWorkspaces,
 		}
 
-		installerFn := func(p *tea.Program) {
-			installer.Run(p, opts)
+		installerFn := func(p *tea.Program, selectedPackages []string) {
+			selectedOpts := opts
+			if selectedPackages != nil {
+				selectedOpts.PackageSelectionEnabled = true
+				selectedOpts.SelectedPackages = selectedPackages
+			}
+			installer.Run(p, selectedOpts)
 		}
 
 		if flagQuiet {
@@ -61,7 +66,7 @@ var installCmd = &cobra.Command{
 			NamedWorkspaces: flagNamedWorkspaces,
 		}
 
-		result, err := tui.Run(installer.PhaseNames(), installerFn, splashOpts, Version)
+		result, err := tui.Run(installer.PhaseNames(), installerFn, splashOpts, Version, installer.PackageChoices())
 		if err != nil {
 			return err
 		}

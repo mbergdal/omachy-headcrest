@@ -22,7 +22,7 @@ func RunQuiet(installer InstallerFunc) (RunResult, error) {
 	app.program = p
 
 	go func() {
-		installer(p)
+		installer(p, nil)
 	}()
 
 	if _, err := p.Run(); err != nil {

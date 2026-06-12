@@ -28,6 +28,10 @@ func runRuntimes(p *tea.Program, opts Options) error {
 	log := func(text string) {
 		p.Send(tui.LogLine{Text: text})
 	}
+	if !opts.packageSelected("mise") {
+		log("==> Skipping mise runtimes (mise not selected)")
+		return nil
+	}
 
 	return installMiseRuntimes(opts.DryRun, log)
 }

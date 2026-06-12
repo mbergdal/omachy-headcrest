@@ -11,9 +11,23 @@ import (
 func newTestApp() App {
 	return NewApp(
 		[]string{"Preflight", "Packages", "Configs"},
-		func(p *tea.Program) {},
+		func(p *tea.Program, selectedPackages []string) {},
 		SplashOptions{},
 		"test",
+		nil,
+	)
+}
+
+func newTestAppWithPackages() App {
+	return NewApp(
+		[]string{"Preflight", "Packages", "Configs"},
+		func(p *tea.Program, selectedPackages []string) {},
+		SplashOptions{},
+		"test",
+		[]PackageChoice{
+			{Name: "ghostty", Label: "Ghostty", Kind: "Cask", Selected: true},
+			{Name: "zed", Label: "Zed", Kind: "Cask", Installed: true},
+		},
 	)
 }
 
@@ -40,6 +54,31 @@ func TestAppSplashToInstall(t *testing.T) {
 
 	if !app.started {
 		t.Error("app should transition to started after Enter")
+	}
+}
+
+func TestAppSplashToSelectorToInstall(t *testing.T) {
+	app := newTestAppWithPackages()
+
+	model, _ := app.Update(tea.WindowSizeMsg{Width: 80, Height: 24})
+	app = model.(App)
+
+	model, _ = app.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	app = model.(App)
+	if !app.selecting {
+		t.Error("app should show package selector after splash")
+	}
+	if app.started {
+		t.Error("app should not start installer while selector is visible")
+	}
+
+	model, _ = app.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	app = model.(App)
+	if !app.started {
+		t.Error("app should start installer after confirming selector")
+	}
+	if app.selecting {
+		t.Error("selector should close after starting installer")
 	}
 }
 

@@ -20,8 +20,14 @@ func runPackages(p *tea.Program, opts Options) error {
 		return fmt.Errorf("load state: %w", err)
 	}
 
-	// Add taps — track which ones Omachy added
-	for _, tap := range manifest.Taps() {
+	pkgs := selectedManifestPackages(opts)
+	if len(pkgs) == 0 {
+		log("==> No packages selected")
+		return nil
+	}
+
+	// Add taps required by selected packages — track which ones Omachy added
+	for _, tap := range selectedTaps(pkgs) {
 		if opts.DryRun {
 			log(fmt.Sprintf("==> Would tap %s", tap))
 			continue
@@ -36,7 +42,6 @@ func runPackages(p *tea.Program, opts Options) error {
 	}
 
 	// Install packages — only record ones Omachy actually installed
-	pkgs := manifest.Packages()
 	for i, pkg := range pkgs {
 		if pkg.SkipIfBinary != "" {
 			if _, found := shell.Which(pkg.SkipIfBinary); found {
@@ -79,4 +84,26 @@ func runPackages(p *tea.Program, opts Options) error {
 	}
 
 	return nil
+}
+
+func selectedManifestPackages(opts Options) []manifest.Package {
+	var pkgs []manifest.Package
+	for _, pkg := range manifest.Packages() {
+		if opts.packageSelected(pkg.Name) {
+			pkgs = append(pkgs, pkg)
+		}
+	}
+	return pkgs
+}
+
+func selectedTaps(pkgs []manifest.Package) []string {
+	seen := map[string]bool{}
+	var taps []string
+	for _, pkg := range pkgs {
+		if pkg.Tap != "" && !seen[pkg.Tap] {
+			seen[pkg.Tap] = true
+			taps = append(taps, pkg.Tap)
+		}
+	}
+	return taps
 }

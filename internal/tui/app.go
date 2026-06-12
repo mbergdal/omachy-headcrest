@@ -9,8 +9,9 @@ import (
 const phasePanelWidth = 20
 
 // InstallerFunc is the function signature for the installer goroutine.
-// It receives the tea.Program to send messages back to the TUI.
-type InstallerFunc func(p *tea.Program)
+// It receives the tea.Program to send messages back to the TUI and any
+// selected package names from the interactive install checklist.
+type InstallerFunc func(p *tea.Program, selectedPackages []string)
 
 // App is the root Bubbletea model.
 type App struct {
@@ -21,9 +22,11 @@ type App struct {
 	width           int
 	height          int
 	started         bool // false = showing splash, true = installer running
+	selecting       bool // true = showing package selector
 	finished        bool
 	err             error
 	installer       InstallerFunc
+	selector        PackageSelectorModel
 	splashOpts      SplashOptions
 	version         string
 	program         *tea.Program  // set after Run() creates the program
@@ -33,7 +36,7 @@ type App struct {
 	waitDone        chan struct{} // signal to unblock the installer goroutine
 }
 
-func NewApp(phaseNames []string, installer InstallerFunc, splashOpts SplashOptions, version string) App {
+func NewApp(phaseNames []string, installer InstallerFunc, splashOpts SplashOptions, version string, packageChoices []PackageChoice) App {
 	title := "Omachy Installer"
 	if splashOpts.Uninstall {
 		title = "Omachy Uninstaller"
@@ -44,6 +47,7 @@ func NewApp(phaseNames []string, installer InstallerFunc, splashOpts SplashOptio
 		output:     NewOutputModel(56, 15),
 		help:       NewHelpModel(80),
 		installer:  installer,
+		selector:   NewPackageSelectorModel(packageChoices),
 		splashOpts: splashOpts,
 		version:    version,
 	}
@@ -64,6 +68,34 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Don't return early — let the viewport also process the resize
 
 	case tea.KeyMsg:
+		if a.selecting {
+			switch msg.String() {
+			case "q", "ctrl+c":
+				return a, tea.Quit
+			case "up", "k":
+				a.selector.Move(-1, a.height)
+				return a, nil
+			case "down", "j":
+				a.selector.Move(1, a.height)
+				return a, nil
+			case " ":
+				a.selector.Toggle()
+				return a, nil
+			case "a":
+				a.selector.SelectAll(true)
+				return a, nil
+			case "n":
+				a.selector.SelectAll(false)
+				return a, nil
+			case "i":
+				a.selector.Invert()
+				return a, nil
+			case "enter":
+				return a.startInstall(a.selector.SelectedNames())
+			}
+			return a, nil
+		}
+
 		// Confirmation dialog intercepts all keys
 		if a.showConfirm {
 			switch msg.String() {
@@ -87,12 +119,11 @@ func (a App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return a, nil
 			}
 			if !a.started {
-				a.started = true
-				// Launch the installer goroutine now
-				return a, func() tea.Msg {
-					go a.installer(a.program)
-					return nil
+				if a.selector.HasItems() && !a.splashOpts.Uninstall {
+					a.selecting = true
+					return a, nil
 				}
+				return a.startInstall(nil)
 			}
 			if a.finished {
 				if a.err == nil && !a.splashOpts.DryRun {
@@ -166,6 +197,9 @@ func (a App) View() string {
 
 	// Splash screen before installation starts
 	if !a.started {
+		if a.selecting {
+			return a.selector.View(a.width, a.height)
+		}
 		return renderSplash(a.width, a.height, a.splashOpts, a.version)
 	}
 
@@ -211,6 +245,15 @@ func (a App) View() string {
 	return base
 }
 
+func (a App) startInstall(selectedPackages []string) (tea.Model, tea.Cmd) {
+	a.started = true
+	a.selecting = false
+	return a, func() tea.Msg {
+		go a.installer(a.program, selectedPackages)
+		return nil
+	}
+}
+
 func (a *App) layout() {
 	a.header.Width = a.width
 	a.help.Width = a.width
@@ -238,8 +281,8 @@ type RunResult struct {
 }
 
 // Run starts the Bubbletea program with the given installer function.
-func Run(phaseNames []string, installer InstallerFunc, splashOpts SplashOptions, version string) (RunResult, error) {
-	app := NewApp(phaseNames, installer, splashOpts, version)
+func Run(phaseNames []string, installer InstallerFunc, splashOpts SplashOptions, version string, packageChoices []PackageChoice) (RunResult, error) {
+	app := NewApp(phaseNames, installer, splashOpts, version, packageChoices)
 	p := tea.NewProgram(&app, tea.WithAltScreen())
 	app.program = p
 

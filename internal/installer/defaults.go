@@ -112,7 +112,7 @@ func runSystem(p *tea.Program, opts Options) error {
 
 	p.Send(tui.ProgressUpdate{Percent: 90})
 
-	if err := startBrewServices(opts.DryRun, state, log); err != nil {
+	if err := startBrewServices(opts, state, log); err != nil {
 		return err
 	}
 
@@ -126,12 +126,20 @@ func runSystem(p *tea.Program, opts Options) error {
 		}
 	}
 
-	if err := ensureAeroSpace(opts.DryRun, p, log); err != nil {
-		return err
+	if opts.packageSelected("nikitabobko/tap/aerospace") {
+		if err := ensureAeroSpace(opts.DryRun, p, log); err != nil {
+			return err
+		}
+	} else {
+		log("==> Skipping AeroSpace startup (AeroSpace not selected)")
 	}
 
-	if err := openRaycastImport(opts.DryRun, homeConfigPath("~/.config/omachy/raycast.rayconfig"), log); err != nil {
-		return err
+	if opts.packageSelected("raycast") {
+		if err := openRaycastImport(opts.DryRun, homeConfigPath("~/.config/omachy/raycast.rayconfig"), log); err != nil {
+			return err
+		}
+	} else {
+		log("==> Skipping Raycast settings import (Raycast not selected)")
 	}
 
 	// Save state
@@ -217,9 +225,13 @@ func homeConfigPath(path string) string {
 	return path
 }
 
-func startBrewServices(dryRun bool, state *State, log func(string)) error {
+func startBrewServices(opts Options, state *State, log func(string)) error {
 	for _, svc := range manifest.Services() {
-		if dryRun {
+		if !opts.packageSelected(svc.Name) {
+			log(fmt.Sprintf("==> Skipping service: %s (not selected)", svc.Name))
+			continue
+		}
+		if opts.DryRun {
 			log(fmt.Sprintf("==> Would start service: %s", svc.Name))
 			continue
 		}

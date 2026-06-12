@@ -9,11 +9,43 @@ import (
 
 // Options holds install configuration from CLI flags.
 type Options struct {
-	DryRun          bool
-	Force           bool
-	Verbose         bool
-	SkipBackup      bool
-	NamedWorkspaces bool
+	DryRun                  bool
+	Force                   bool
+	Verbose                 bool
+	SkipBackup              bool
+	NamedWorkspaces         bool
+	PackageSelectionEnabled bool
+	SelectedPackages        []string
+}
+
+func (o Options) packageSelected(name string) bool {
+	if !o.PackageSelectionEnabled {
+		return true
+	}
+	for _, selected := range o.SelectedPackages {
+		if selected == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (o Options) anyPackageSelected(names ...string) bool {
+	for _, name := range names {
+		if o.packageSelected(name) {
+			return true
+		}
+	}
+	return false
+}
+
+func (o Options) allPackagesSelected(names ...string) bool {
+	for _, name := range names {
+		if !o.packageSelected(name) {
+			return false
+		}
+	}
+	return true
 }
 
 // PhaseNames returns the ordered list of installation phase names.

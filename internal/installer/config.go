@@ -45,10 +45,13 @@ func runBackup(p *tea.Program, opts Options) error {
 
 	log("==> Backing up existing configs (pre-Omachy state)")
 
-	// Collect destination paths from manifest
 	var destPaths []string
-	for _, cfg := range manifest.Configs() {
+	for _, cfg := range selectedConfigMappings(opts) {
 		destPaths = append(destPaths, cfg.Dest)
+	}
+	if len(destPaths) == 0 {
+		log("==> No selected package configs to back up")
+		return nil
 	}
 
 	if opts.DryRun {
@@ -88,7 +91,10 @@ func runConfigs(p *tea.Program, opts Options) error {
 		return fmt.Errorf("load state: %w", err)
 	}
 
-	configs := manifest.Configs()
+	configs := selectedConfigMappings(opts)
+	if len(configs) == 0 {
+		log("==> No selected package configs to deploy")
+	}
 
 	// Swap to named workspace configs if requested
 	if opts.NamedWorkspaces {
@@ -107,8 +113,7 @@ func runConfigs(p *tea.Program, opts Options) error {
 		if cfg.NeverOverwrite && !opts.Force {
 			if _, err := os.Lstat(dest); err == nil {
 				log(fmt.Sprintf("==> Skipping %s (existing config found, use --force to overwrite)", cfg.Dest))
-				pct := 60 + ((i+1)*20)/len(configs)
-				p.Send(tui.ProgressUpdate{Percent: pct})
+				p.Send(tui.ProgressUpdate{Percent: configProgress(i, len(configs))})
 				continue
 			}
 		}
@@ -134,66 +139,77 @@ func runConfigs(p *tea.Program, opts Options) error {
 		hash, _ := checksum.Path(dest)
 		state.DeployedConfigs[dest] = hash
 
-		pct := 60 + ((i+1)*20)/len(configs) // configs phase covers 60-80%
-		p.Send(tui.ProgressUpdate{Percent: pct})
+		p.Send(tui.ProgressUpdate{Percent: configProgress(i, len(configs))})
 	}
 
 	// Clean up legacy AeroSpace config location to avoid ambiguity
 	legacyAerospace := filepath.Join(home, ".aerospace.toml")
-	if _, err := os.Stat(legacyAerospace); err == nil {
-		if !opts.DryRun {
-			log("==> Removing legacy ~/.aerospace.toml (AeroSpace uses ~/.config/aerospace/)")
-			os.Remove(legacyAerospace)
-			// Also remove from deployed configs if we previously tracked it
-			delete(state.DeployedConfigs, legacyAerospace)
-		} else {
-			log("==> Would remove legacy ~/.aerospace.toml to avoid config ambiguity")
+	if opts.packageSelected("nikitabobko/tap/aerospace") {
+		if _, err := os.Stat(legacyAerospace); err == nil {
+			if !opts.DryRun {
+				log("==> Removing legacy ~/.aerospace.toml (AeroSpace uses ~/.config/aerospace/)")
+				os.Remove(legacyAerospace)
+				// Also remove from deployed configs if we previously tracked it
+				delete(state.DeployedConfigs, legacyAerospace)
+			} else {
+				log("==> Would remove legacy ~/.aerospace.toml to avoid config ambiguity")
+			}
 		}
 	}
 
-	nvimDir := filepath.Join(home, ".config", "nvim")
-	if _, err := os.Stat(nvimDir); os.IsNotExist(err) {
-		if opts.DryRun {
-			log("==> Would install LazyVim.nvim")
-		} else {
-			log("==> Installing LazyVim.nvim")
-			if err := shell.RunStreaming("git", []string{
-				"clone", "https://github.com/LazyVim/starter", nvimDir,
-			}, log); err != nil {
-				log(fmt.Sprintf("    Warning: failed to clone LazyVim.nvim: %v", err))
+	if opts.packageSelected("neovim") {
+		nvimDir := filepath.Join(home, ".config", "nvim")
+		if _, err := os.Stat(nvimDir); os.IsNotExist(err) {
+			if opts.DryRun {
+				log("==> Would install LazyVim.nvim")
+			} else {
+				log("==> Installing LazyVim.nvim")
+				if err := shell.RunStreaming("git", []string{
+					"clone", "https://github.com/LazyVim/starter", nvimDir,
+				}, log); err != nil {
+					log(fmt.Sprintf("    Warning: failed to clone LazyVim.nvim: %v", err))
+				}
 			}
+		} else {
+			log("    Neovim config already exists, skipping LazyVim.nvim")
 		}
 	} else {
-		log("    Neovim config already exists, skipping LazyVim.nvim")
+		log("==> Skipping LazyVim.nvim (Neovim not selected)")
 	}
 
 	// Install TPM and plugins if not already present
-	tpmDir := filepath.Join(home, ".tmux", "plugins", "tpm")
-	if _, err := os.Stat(tpmDir); os.IsNotExist(err) {
-		if opts.DryRun {
-			log("==> Would install TPM (Tmux Plugin Manager)")
-		} else {
-			log("==> Installing TPM (Tmux Plugin Manager)")
-			if err := shell.RunStreaming("git", []string{
-				"clone", "https://github.com/tmux-plugins/tpm", tpmDir,
-			}, log); err != nil {
-				log(fmt.Sprintf("    Warning: failed to clone TPM: %v", err))
+	if opts.packageSelected("tmux") {
+		tpmDir := filepath.Join(home, ".tmux", "plugins", "tpm")
+		if _, err := os.Stat(tpmDir); os.IsNotExist(err) {
+			if opts.DryRun {
+				log("==> Would install TPM (Tmux Plugin Manager)")
 			} else {
-				log("==> Installing tmux plugins")
-				installScript := filepath.Join(tpmDir, "bin", "install_plugins")
-				shell.RunStreaming(installScript, nil, log)
+				log("==> Installing TPM (Tmux Plugin Manager)")
+				if err := shell.RunStreaming("git", []string{
+					"clone", "https://github.com/tmux-plugins/tpm", tpmDir,
+				}, log); err != nil {
+					log(fmt.Sprintf("    Warning: failed to clone TPM: %v", err))
+				} else {
+					log("==> Installing tmux plugins")
+					installScript := filepath.Join(tpmDir, "bin", "install_plugins")
+					shell.RunStreaming(installScript, nil, log)
+				}
 			}
+		} else {
+			log("    TPM already installed")
 		}
 	} else {
-		log("    TPM already installed")
+		log("==> Skipping TPM (Tmux not selected)")
 	}
 
 	// Manage shell integrations in .zshrc
 	zshrcPath := filepath.Join(home, ".zshrc")
-	if opts.DryRun {
-		log("==> Would update ~/.zshrc with shell integrations")
+	if !hasSelectedZshrcContent(opts) {
+		log("==> Skipping ~/.zshrc update (no selected shell integrations)")
+	} else if opts.DryRun {
+		log("==> Would update ~/.zshrc with selected shell integrations")
 	} else {
-		if err := updateZshrcBlock(zshrcPath, log); err != nil {
+		if err := updateZshrcBlock(zshrcPath, opts, log); err != nil {
 			log(fmt.Sprintf("    Warning: failed to update .zshrc: %v", err))
 		}
 	}
@@ -208,6 +224,48 @@ func runConfigs(p *tea.Program, opts Options) error {
 	return nil
 }
 
+func selectedConfigMappings(opts Options) []manifest.ConfigMapping {
+	var configs []manifest.ConfigMapping
+	for _, cfg := range manifest.Configs() {
+		if configMappingSelected(cfg, opts) {
+			configs = append(configs, cfg)
+		}
+	}
+	return configs
+}
+
+func configMappingSelected(cfg manifest.ConfigMapping, opts Options) bool {
+	switch cfg.Source {
+	case "aerospace/aerospace.toml":
+		return opts.packageSelected("nikitabobko/tap/aerospace")
+	case "ghostty/config":
+		return opts.packageSelected("ghostty")
+	case "tmux/tmux.conf":
+		return opts.packageSelected("tmux")
+	case "starship.toml":
+		return opts.packageSelected("starship")
+	case "zed/keymap.json", "zed/settings.json":
+		return opts.packageSelected("zed")
+	case "Raycast 2026-06-11 15.59.34.rayconfig":
+		return opts.packageSelected("raycast")
+	case "omachy/dev-session.sh":
+		return opts.allPackagesSelected("tmux", "neovim", "opencode", "lazygit")
+	case "yazi/keymap.toml", "yazi/theme.toml", "yazi/yazi.toml":
+		return opts.packageSelected("yazi")
+	case "zshrc/.aliases":
+		return opts.anyPackageSelected("neovim", "eza", "lazygit", "lazydocker", "bat")
+	default:
+		return true
+	}
+}
+
+func configProgress(i, total int) int {
+	if total == 0 {
+		return 80
+	}
+	return 60 + ((i+1)*20)/total
+}
+
 const (
 	zshrcMarkerStart = "# ── Omachy managed (do not edit between these markers) ──"
 	zshrcMarkerEnd   = "# ── End Omachy managed ──"
@@ -215,27 +273,26 @@ const (
 )
 
 // shellIntegrations are the init lines for tools that need shell configuration.
-var shellIntegrations = []struct {
+type shellIntegration struct {
+	pkg   string
 	check string // string to search for in existing .zshrc
 	line  string // line to add
-}{
-	{`mise activate zsh`, `eval "$(mise activate zsh)"`},
-	{`starship init zsh`, `eval "$(starship init zsh)"`},
-	{`fzf --zsh`, `eval "$(fzf --zsh)"`},
-	{`atuin init zsh`, `eval "$(atuin init zsh)"`},
-	{`set -o vi`, `set -o vi`},
-	{`zsh-syntax-highlighting.zsh`, `source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh`},
-	{`zsh-autosuggestions.zsh`, `source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh`},
-	{`fastfetch`, `fastfetch`},
-	{`dev()`, `dev() { sh ~/.config/omachy/dev-session.sh "$@"; }`},
 }
 
-func updateZshrcBlock(path string, log func(string)) error {
-	extras, err := loadZshrcExtras()
-	if err != nil {
-		return err
-	}
-	return updateZshrcBlockWithExtras(path, extras, log)
+var shellIntegrations = []shellIntegration{
+	{`mise`, `mise activate zsh`, `eval "$(mise activate zsh)"`},
+	{`starship`, `starship init zsh`, `eval "$(starship init zsh)"`},
+	{`fzf`, `fzf --zsh`, `eval "$(fzf --zsh)"`},
+	{`atuin`, `atuin init zsh`, `eval "$(atuin init zsh)"`},
+	{``, `set -o vi`, `set -o vi`},
+	{`zsh-syntax-highlighting`, `zsh-syntax-highlighting.zsh`, `source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh`},
+	{`zsh-autosuggestions`, `zsh-autosuggestions.zsh`, `source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh`},
+	{`fastfetch`, `fastfetch`, `fastfetch`},
+	{``, `dev()`, `dev() { sh ~/.config/omachy/dev-session.sh "$@"; }`},
+}
+
+func updateZshrcBlock(path string, opts Options, log func(string)) error {
+	return updateZshrcBlockWithExtrasAndIntegrations(path, selectedZshrcExtras(opts), selectedShellIntegrations(opts), log)
 }
 
 func loadZshrcExtras() (string, error) {
@@ -247,6 +304,10 @@ func loadZshrcExtras() (string, error) {
 }
 
 func updateZshrcBlockWithExtras(path, extras string, log func(string)) error {
+	return updateZshrcBlockWithExtrasAndIntegrations(path, extras, shellIntegrations, log)
+}
+
+func updateZshrcBlockWithExtrasAndIntegrations(path, extras string, integrations []shellIntegration, log func(string)) error {
 	// Read existing content, or start with empty
 	existing := ""
 	if data, err := os.ReadFile(path); err == nil {
@@ -266,7 +327,7 @@ func updateZshrcBlockWithExtras(path, extras string, log func(string)) error {
 	// Build the managed block. Skip integrations that already exist outside
 	// the managed block (i.e. the user set them up themselves).
 	var lines []string
-	for _, si := range shellIntegrations {
+	for _, si := range integrations {
 		if strings.Contains(cleaned, si.check) {
 			log(fmt.Sprintf("    Already present outside managed block: %s", si.check))
 		} else {
@@ -308,6 +369,48 @@ func updateZshrcBlockWithExtras(path, extras string, log func(string)) error {
 	}
 
 	return os.WriteFile(path, []byte(newContent), 0644)
+}
+
+func selectedShellIntegrations(opts Options) []shellIntegration {
+	var selected []shellIntegration
+	for _, si := range shellIntegrations {
+		if si.check == "dev()" {
+			if configMappingSelected(manifest.ConfigMapping{Source: "omachy/dev-session.sh"}, opts) {
+				selected = append(selected, si)
+			}
+			continue
+		}
+		if si.pkg == "" || opts.packageSelected(si.pkg) {
+			selected = append(selected, si)
+		}
+	}
+	return selected
+}
+
+func selectedZshrcExtras(opts Options) string {
+	var b strings.Builder
+	if configMappingSelected(manifest.ConfigMapping{Source: "zshrc/.aliases"}, opts) {
+		b.WriteString("\n# Add aliases\nsource ~/.aliases\n")
+	}
+	if opts.packageSelected("yazi") {
+		b.WriteString(`
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd "$cwd"
+	rm -f -- "$tmp"
+}
+`)
+	}
+	if opts.packageSelected("neovim") {
+		b.WriteString("\n# Set default editor to nvim\nexport EDITOR=nvim\n")
+	}
+	return b.String()
+}
+
+func hasSelectedZshrcContent(opts Options) bool {
+	return selectedZshrcExtras(opts) != "" || len(selectedShellIntegrations(opts)) > 0
 }
 
 func removeManagedBlock(content string) string {

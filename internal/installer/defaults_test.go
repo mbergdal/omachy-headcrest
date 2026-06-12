@@ -13,7 +13,7 @@ func TestStartBrewServicesStartsColima(t *testing.T) {
 	writeFakeServiceBrew(t, tmp, logPath)
 
 	state := &State{}
-	if err := startBrewServices(false, state, func(string) {}); err != nil {
+	if err := startBrewServices(Options{}, state, func(string) {}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -33,7 +33,7 @@ func TestStartBrewServicesStartsColima(t *testing.T) {
 func TestStartBrewServicesDryRun(t *testing.T) {
 	state := &State{}
 	var lines []string
-	if err := startBrewServices(true, state, func(line string) { lines = append(lines, line) }); err != nil {
+	if err := startBrewServices(Options{DryRun: true}, state, func(line string) { lines = append(lines, line) }); err != nil {
 		t.Fatal(err)
 	}
 	if len(state.Services) != 0 {
@@ -41,6 +41,21 @@ func TestStartBrewServicesDryRun(t *testing.T) {
 	}
 	if !strings.Contains(strings.Join(lines, "\n"), "Would start service: colima") {
 		t.Fatalf("dry run logs missing colima service start: %v", lines)
+	}
+}
+
+func TestStartBrewServicesSkipsUnselectedService(t *testing.T) {
+	state := &State{}
+	var lines []string
+	err := startBrewServices(Options{PackageSelectionEnabled: true}, state, func(line string) { lines = append(lines, line) })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(state.Services) != 0 {
+		t.Fatalf("unselected service should not be tracked, got %v", state.Services)
+	}
+	if !strings.Contains(strings.Join(lines, "\n"), "Skipping service: colima") {
+		t.Fatalf("missing skip log: %v", lines)
 	}
 }
 

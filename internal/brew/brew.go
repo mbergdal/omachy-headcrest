@@ -18,6 +18,30 @@ func Tap(name string, onLine func(string)) error {
 	return shell.RunStreaming("brew", []string{"tap", name}, onLine)
 }
 
+// InstalledSet returns the installed Homebrew formulae or casks as a set.
+func InstalledSet(cask bool) (map[string]bool, error) {
+	args := []string{"list"}
+	if cask {
+		args = append(args, "--cask")
+	} else {
+		args = append(args, "--formula")
+	}
+
+	result, err := shell.Run("brew", args...)
+	if err != nil {
+		return nil, err
+	}
+
+	installed := map[string]bool{}
+	for _, line := range strings.Split(result.Stdout, "\n") {
+		name := strings.TrimSpace(line)
+		if name != "" {
+			installed[name] = true
+		}
+	}
+	return installed, nil
+}
+
 // IsTapped checks if a tap is already added.
 func IsTapped(name string) bool {
 	result, err := shell.Run("brew", "tap")

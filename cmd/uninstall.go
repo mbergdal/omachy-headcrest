@@ -36,7 +36,7 @@ var uninstallCmd = &cobra.Command{
 			KeepPackages: uninstallKeepPkgs,
 		}
 
-		uninstallerFn := func(p *tea.Program) {
+		uninstallerFn := func(p *tea.Program, _ []string) {
 			uninstaller.Run(p, opts)
 		}
 
@@ -55,7 +55,7 @@ var uninstallCmd = &cobra.Command{
 			Uninstall:    true,
 		}
 
-		result, err := tui.Run(uninstaller.PhaseNames(), uninstallerFn, splashOpts, Version)
+		result, err := tui.Run(uninstaller.PhaseNames(), uninstallerFn, splashOpts, Version, nil)
 		if err != nil {
 			return err
 		}

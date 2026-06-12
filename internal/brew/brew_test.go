@@ -163,3 +163,35 @@ esac
 		t.Errorf("expected install message, got:\n%s", output)
 	}
 }
+
+func TestInstalledSet(t *testing.T) {
+	writeFakeBrew(t, `
+case "$1 $2" in
+  "list --formula")
+    printf '%s\n' neovim tmux
+    exit 0
+    ;;
+  "list --cask")
+    printf '%s\n' ghostty zed
+    exit 0
+    ;;
+esac
+exit 1
+`)
+
+	formulae, err := InstalledSet(false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !formulae["neovim"] || !formulae["tmux"] {
+		t.Fatalf("formula set = %v", formulae)
+	}
+
+	casks, err := InstalledSet(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !casks["ghostty"] || !casks["zed"] {
+		t.Fatalf("cask set = %v", casks)
+	}
+}

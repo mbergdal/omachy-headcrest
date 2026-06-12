@@ -58,6 +58,16 @@ func TestOpenRaycastImportDryRun(t *testing.T) {
 	}
 }
 
+func TestEnsureAeroSpaceDryRun(t *testing.T) {
+	var lines []string
+	if err := ensureAeroSpace(true, nil, func(line string) { lines = append(lines, line) }); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(strings.Join(lines, "\n"), "Would start or reload AeroSpace") {
+		t.Fatalf("dry run logs missing AeroSpace action: %v", lines)
+	}
+}
+
 func writeFakeServiceBrew(t *testing.T, tmp, logPath string) {
 	t.Helper()
 

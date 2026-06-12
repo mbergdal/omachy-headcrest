@@ -126,38 +126,8 @@ func runSystem(p *tea.Program, opts Options) error {
 		}
 	}
 
-	// Start AeroSpace and ensure it has accessibility permissions
-	if !opts.DryRun {
-		log("==> Starting AeroSpace")
-		shell.Run("open", "-a", "AeroSpace")
-		time.Sleep(3 * time.Second)
-
-		if isAerospaceRunning() {
-			log("==> AeroSpace is running (Accessibility permissions granted)")
-		} else {
-			log("==> AeroSpace needs Accessibility permissions")
-			log("    1. A dialog should have appeared — click 'Open System Settings'")
-			log("    2. Enable the toggle for AeroSpace in Privacy → Accessibility")
-
-			done := make(chan struct{})
-			p.Send(tui.WaitForUser{
-				Prompt: "    When you've granted permissions, confirm below.",
-				Done:   done,
-			})
-			<-done
-
-			log("==> Relaunching AeroSpace...")
-			shell.Run("open", "-a", "AeroSpace")
-			time.Sleep(3 * time.Second)
-
-			if isAerospaceRunning() {
-				log("==> AeroSpace is running!")
-			} else {
-				log("==> AeroSpace still not running — you may need to open it manually")
-			}
-		}
-	} else {
-		log("==> Would start AeroSpace and check Accessibility permissions")
+	if err := ensureAeroSpace(opts.DryRun, p, log); err != nil {
+		return err
 	}
 
 	if err := openRaycastImport(opts.DryRun, homeConfigPath("~/.config/omachy/raycast.rayconfig"), log); err != nil {
@@ -171,6 +141,52 @@ func runSystem(p *tea.Program, opts Options) error {
 		}
 	}
 
+	return nil
+}
+
+func ensureAeroSpace(dryRun bool, p *tea.Program, log func(string)) error {
+	if dryRun {
+		log("==> Would start or reload AeroSpace and check Accessibility permissions")
+		return nil
+	}
+
+	if isAerospaceRunning() {
+		log("==> Reloading AeroSpace config")
+		if err := shell.RunStreaming("aerospace", []string{"reload-config", "--no-gui"}, log); err != nil {
+			log(fmt.Sprintf("    Warning: failed to reload AeroSpace config: %v", err))
+		}
+		return nil
+	}
+
+	log("==> Starting AeroSpace")
+	shell.Run("open", "-a", "AeroSpace")
+	time.Sleep(3 * time.Second)
+
+	if isAerospaceRunning() {
+		log("==> AeroSpace is running (Accessibility permissions granted)")
+		return nil
+	}
+
+	log("==> AeroSpace needs Accessibility permissions")
+	log("    1. A dialog should have appeared — click 'Open System Settings'")
+	log("    2. Enable the toggle for AeroSpace in Privacy → Accessibility")
+
+	done := make(chan struct{})
+	p.Send(tui.WaitForUser{
+		Prompt: "    When you've granted permissions, confirm below.",
+		Done:   done,
+	})
+	<-done
+
+	log("==> Relaunching AeroSpace...")
+	shell.Run("open", "-a", "AeroSpace")
+	time.Sleep(3 * time.Second)
+
+	if isAerospaceRunning() {
+		log("==> AeroSpace is running!")
+	} else {
+		log("==> AeroSpace still not running — you may need to open it manually")
+	}
 	return nil
 }
 

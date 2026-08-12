@@ -3,8 +3,8 @@
 format = """
 $hostname\
 $directory\
-$custom.hg_prompt\
-$custom.git_prompt\
+${custom.hg_prompt}\
+${custom.git_prompt}\
 $line_break\
 $character"""
 
